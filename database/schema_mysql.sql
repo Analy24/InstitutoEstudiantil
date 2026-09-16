@@ -1,5 +1,5 @@
 -- =============================================================================
--- SENA CONECTA - SCRIPT DDL PARA MYSQL 8.X / MARIADB
+-- INSTITUTO ESTUDIANTIL - SCRIPT DDL PARA MYSQL 8.X / MARIADB
 -- Proyecto Formativo de Articulación con la Educación Media Técnica (Grados 10 y 11)
 -- =============================================================================
 
@@ -61,7 +61,7 @@ CREATE TABLE colegios (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
--- 3. TABLA: instructores (Docentes e Instructores Técnicos SENA)
+-- 3. TABLA: instructores (Docentes e Instructores Técnicos)
 -- -----------------------------------------------------------------------------
 CREATE TABLE instructores (
     id VARCHAR(36) PRIMARY KEY,
@@ -132,7 +132,7 @@ CREATE TABLE estudiantes (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
--- 6. TABLA: competencias (Catálogo Curricular SENA)
+-- 6. TABLA: competencias (Catálogo Curricular)
 -- -----------------------------------------------------------------------------
 CREATE TABLE competencias (
     id VARCHAR(36) PRIMARY KEY,

@@ -1,5 +1,5 @@
 -- =============================================================================
--- SENA CONECTA - DATOS DE PRUEBA (SEEDS) PARA MYSQL
+-- INSTITUTO ESTUDIANTIL - DATOS DE PRUEBA (SEEDS) PARA MYSQL
 -- Contraseña unificada para todos los usuarios de prueba: Password123!
 -- Hash bcrypt (salt 10): $2b$10$wTf7JzM6k2fM5b9aJ3B.b.f8lTfVp9R9Iom0YQ7F3l3r8L5nB.uXq
 -- =============================================================================
@@ -26,8 +26,8 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- 1. USUARIOS DEL SISTEMA
 -- -----------------------------------------------------------------------------
 INSERT INTO usuarios (id, email, password_hash, rol, activo, ultimo_acceso) VALUES
-('usr-admin-01', 'admin@senaconecta.edu.co', '$2b$10$wTf7JzM6k2fM5b9aJ3B.b.f8lTfVp9R9Iom0YQ7F3l3r8L5nB.uXq', 'ADMIN', 1, NOW()),
-('usr-inst-01', 'instructor.perez@misena.edu.co', '$2b$10$wTf7JzM6k2fM5b9aJ3B.b.f8lTfVp9R9Iom0YQ7F3l3r8L5nB.uXq', 'INSTRUCTOR', 1, NOW()),
+('usr-admin-01', 'admin@institutoestudiantil.edu.co', '$2b$10$wTf7JzM6k2fM5b9aJ3B.b.f8lTfVp9R9Iom0YQ7F3l3r8L5nB.uXq', 'ADMIN', 1, NOW()),
+('usr-inst-01', 'instructor.perez@instituto.edu.co', '$2b$10$wTf7JzM6k2fM5b9aJ3B.b.f8lTfVp9R9Iom0YQ7F3l3r8L5nB.uXq', 'INSTRUCTOR', 1, NOW()),
 ('usr-est-01', 'juan.rodriguez@colegio.edu.co', '$2b$10$wTf7JzM6k2fM5b9aJ3B.b.f8lTfVp9R9Iom0YQ7F3l3r8L5nB.uXq', 'ESTUDIANTE', 1, NOW()),
 ('usr-est-02', 'maria.gomez@colegio.edu.co', '$2b$10$wTf7JzM6k2fM5b9aJ3B.b.f8lTfVp9R9Iom0YQ7F3l3r8L5nB.uXq', 'ESTUDIANTE', 1, NOW()),
 ('usr-emp-01', 'talento@innovatech.com', '$2b$10$wTf7JzM6k2fM5b9aJ3B.b.f8lTfVp9R9Iom0YQ7F3l3r8L5nB.uXq', 'EMPRESA', 1, NOW());
@@ -40,7 +40,7 @@ INSERT INTO colegios (id, codigo_dane, nombre, direccion, municipio, departament
 ('col-02', '111001089012', 'Colegio Industrial Piloto del Sur', 'Carrera 24 # 56-10 Sur', 'Soacha', 'Cundinamarca', '(601) 7891234', 'Dra. Elena Villamil', 'Lic. Óscar Téllez', 'rectoria@industrialpiloto.edu.co');
 
 -- -----------------------------------------------------------------------------
--- 3. INSTRUCTORES SENA
+-- 3. INSTRUCTORES
 -- -----------------------------------------------------------------------------
 INSERT INTO instructores (id, usuario_id, tipo_documento, numero_documento, nombres, apellidos, telefono, centro_formacion, especialidad) VALUES
 ('inst-01', 'usr-inst-01', 'CC', '80123456', 'Carlos Alberto', 'Pérez Moreno', '3157894561', 'Centro de Electricidad, Electrónica y Telecomunicaciones (CEET)', 'Análisis y Desarrollo de Software / Redes');
@@ -56,11 +56,11 @@ INSERT INTO instructor_colegios (id, instructor_id, colegio_id, ficha_caracteriz
 -- 5. APRENDICES (ESTUDIANTES DE MEDIA TÉCNICA)
 -- -----------------------------------------------------------------------------
 INSERT INTO estudiantes (id, usuario_id, colegio_id, tipo_documento, numero_documento, nombres, apellidos, grado, ficha_sena, programa_formacion, jornada, telefono, resumen_perfil, hoja_vida_url, foto_url) VALUES
-('est-01', 'usr-est-01', 'col-01', 'TI', '1023456789', 'Juan Camilo', 'Rodríguez Pérez', 11, '2712345', 'Técnico en Programación de Software', 'Mañana', '3109876543', 'Estudiante de grado 11° con alta vocación por el desarrollo web Frontend y bases de datos relacionales. Apasionado por React, Node.js y trabajo colaborativo.', 'https://senaconecta.edu.co/uploads/hv_juan_rodriguez.pdf', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'),
-('est-02', 'usr-est-02', 'col-01', 'TI', '1034567890', 'María Paula', 'Gómez Herrera', 10, '2812345', 'Técnico en Programación de Software', 'Tarde', '3123456789', 'Estudiante de grado 10° cursando primer año de articulación técnica. Énfasis en algoritmia, diagramación lógica y maquetación web accesible.', 'https://senaconecta.edu.co/uploads/hv_maria_gomez.pdf', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150');
+('est-01', 'usr-est-01', 'col-01', 'TI', '1023456789', 'Juan Camilo', 'Rodríguez Pérez', 11, '2712345', 'Técnico en Programación de Software', 'Mañana', '3109876543', 'Estudiante de grado 11° con alta vocación por el desarrollo web Frontend y bases de datos relacionales. Apasionado por React, Node.js y trabajo colaborativo.', 'https://institutoestudiantil.edu.co/uploads/hv_juan_rodriguez.pdf', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'),
+('est-02', 'usr-est-02', 'col-01', 'TI', '1034567890', 'María Paula', 'Gómez Herrera', 10, '2812345', 'Técnico en Programación de Software', 'Tarde', '3123456789', 'Estudiante de grado 10° cursando primer año de articulación técnica. Énfasis en algoritmia, diagramación lógica y maquetación web accesible.', 'https://institutoestudiantil.edu.co/uploads/hv_maria_gomez.pdf', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150');
 
 -- -----------------------------------------------------------------------------
--- 6. COMPETENCIAS TÉCNICAS SENA (CURRÍCULO ADSO/MEDIA TÉCNICA)
+-- 6. COMPETENCIAS TÉCNICAS (CURRÍCULO)
 -- -----------------------------------------------------------------------------
 INSERT INTO competencias (id, codigo_norma, denominacion, programa_formacion, fase_proyecto, horas_duracion, descripcion) VALUES
 ('comp-01', '220501092', 'Especificar los requisitos necesarios para desarrollar la solución de software', 'Técnico en Programación de Software', 'Analisis', 48, 'Levantamiento de historias de usuario, requerimientos funcionales y no funcionales.'),
@@ -70,7 +70,7 @@ INSERT INTO competencias (id, codigo_norma, denominacion, programa_formacion, fa
 ('comp-05', '220501096', 'Construir el sistema de bases de datos relacional conforme al diseño', 'Técnico en Programación de Software', 'Ejecucion', 64, 'Implementación de DDL, DML, llaves foráneas, índices y consultas optimizadas.');
 
 -- -----------------------------------------------------------------------------
--- 7. EVALUACIÓN Y SEGUIMIENTO DE COMPETENCIAS (JUICIOS SENA)
+-- 7. EVALUACIÓN Y SEGUIMIENTO DE COMPETENCIAS
 -- -----------------------------------------------------------------------------
 -- Juan Camilo (Grado 11 - 80% de competencias aprobadas, habilitado para práctica)
 INSERT INTO estudiante_competencias (id, estudiante_id, competencia_id, instructor_id, juicio_evaluativo, fecha_evaluacion, observaciones, evidencias_url) VALUES
@@ -98,7 +98,7 @@ INSERT INTO empresas (id, usuario_id, nit, razon_social, sector_economico, direc
 -- 9. VACANTES PARA ETAPA PRÁCTICA
 -- -----------------------------------------------------------------------------
 INSERT INTO vacantes (id, empresa_id, titulo, descripcion, requisitos, modalidad, ubicacion, cupos_disponibles, auxilio_sostenimiento, fecha_limite, estado) VALUES
-('vac-01', 'emp-01', 'Aprendiz Desarrollador Web Junior (Etapa Práctica)', 'Buscamos aprendiz de grado 11° de articulación SENA en Técnico de Programación de Software para apoyar el desarrollo de módulos frontend y consumo de APIs en equipo ágil.', 'Competencias aprobadas en diseño de software y codificación. Conocimientos en HTML, CSS, JavaScript y Git.', 'HIBRIDO', 'Bogotá D.C.', 2, 1423500.00, '2026-11-30', 'ABIERTA'),
+('vac-01', 'emp-01', 'Aprendiz Desarrollador Web Junior (Etapa Práctica)', 'Buscamos aprendiz de grado 11° de articulación en Técnico de Programación de Software para apoyar el desarrollo de módulos frontend y consumo de APIs en equipo ágil.', 'Competencias aprobadas en diseño de software y codificación. Conocimientos en HTML, CSS, JavaScript y Git.', 'HIBRIDO', 'Bogotá D.C.', 2, 1423500.00, '2026-11-30', 'ABIERTA'),
 ('vac-02', 'emp-01', 'Auxiliar de Bases de Datos y Soporte TI', 'Oportunidad de contrato de aprendizaje para dar soporte en administración básica de MySQL, consultas SQL y mantenimiento preventivo.', 'Competencias aprobadas en bases de datos relacionales y gestión de datos.', 'PRESENCIAL', 'Bogotá D.C.', 1, 1423500.00, '2026-12-15', 'ABIERTA');
 
 -- -----------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-# SENA Conecta - Documentación Técnica y Arquitectura de Software
+# Instituto Estudiantil - Documentación Técnica y Arquitectura de Software
 **Proyecto Formativo:** Sistema de Gestión y Articulación con la Educación Media Técnica (Grados 10° y 11°)  
 **Programa:** Tecnólogo en Análisis y Desarrollo de Software (ADSO) / ADSI  
 **Versión:** 1.0.0  
@@ -62,7 +62,7 @@ erDiagram
         string nombres
         string apellidos
         string telefono
-        string centro_formacion "Centro SENA regional"
+        string centro_formacion "Centro Instituto regional"
         string especialidad
         timestamp created_at
     }
@@ -180,14 +180,14 @@ erDiagram
    - Cardinalidad: `COLEGIO (1) <---> (0..N) ESTUDIANTE`.
 
 3. **Asignación Colegio - Instructor (N:M a través de INSTRUCTOR_COLEGIO):**
-   - Un `INSTRUCTOR` SENA puede estar asignado a varios colegios articulados o fichas en una regional.
+   - Un `INSTRUCTOR` Instituto puede estar asignado a varios colegios articulados o fichas en una regional.
    - Un `COLEGIO` puede contar con varios instructores de distintas áreas técnicas.
    - Cardinalidad: `INSTRUCTOR (1) <---> (0..N) INSTRUCTOR_COLEGIO (N..0) <---> (1) COLEGIO`.
 
 4. **Evaluación de Competencias (N:M con atributos de auditoría):**
-   - Un `ESTUDIANTE` cursa múltiples `COMPETENCIA`s del programa SENA.
+   - Un `ESTUDIANTE` cursa múltiples `COMPETENCIA`s del programa Instituto.
    - Una `COMPETENCIA` es evaluada en múltiples estudiantes.
-   - La tabla pivote `ESTUDIANTE_COMPETENCIA` almacena el juicio evaluativo SENA (`APROBADO`, `EN_PROCESO`, `NO_APROBADO`), el `INSTRUCTOR` firmante, evidencias y observaciones pedagógicas.
+   - La tabla pivote `ESTUDIANTE_COMPETENCIA` almacena el juicio evaluativo Instituto (`APROBADO`, `EN_PROCESO`, `NO_APROBADO`), el `INSTRUCTOR` firmante, evidencias y observaciones pedagógicas.
    - Restricción de unicidad: `UNIQUE(estudiante_id, competencia_id)`.
 
 5. **Vacantes y Postulaciones (1:N y N:M):**
@@ -260,7 +260,7 @@ Se implementa una **Arquitectura Cliente-Servidor Desacoplada** de tres niveles 
    - Manejo centralizado de excepciones HTTP con códigos de estado semánticos (200, 201, 400, 401, 403, 404, 422, 500).
 
 3. **Capa de Lógica de Negocio / Servicios (`/services`):**
-   - Contiene las reglas operativas SENA:
+   - Contiene las reglas operativas Instituto:
      - Cálculo de porcentaje de avance formativo del aprendiz.
      - Restricción de postulación: Un aprendiz solo puede postularse si cuenta con al menos el 70% de competencias aprobadas.
      - Obligatoriedad de plan de mejoramiento en observaciones pedagógicas para juicios "No Aprobado".
@@ -295,21 +295,21 @@ Se implementa una **Arquitectura Cliente-Servidor Desacoplada** de tres niveles 
 | `GET` | `/api/v1/users` | `ADMIN` | Lista usuarios con paginación y filtros | Query: `?rol=ESTUDIANTE&page=1&limit=20` | `200 OK` `{ total, items: [...] }` |
 | `PATCH`| `/api/v1/users/:id/estado` | `ADMIN` | Activa o suspende una cuenta de usuario | `{ "activo": false, "motivo": "Graduado" }` | `200 OK` `{ id, activo: false }` |
 
-### 3.2 Módulo 2: Articulación Colegio - SENA (`/api/v1/colegios`, `/api/v1/fichas`)
+### 3.2 Módulo 2: Articulación Colegio - Instituto (`/api/v1/colegios`, `/api/v1/fichas`)
 
 | Método | Endpoint | Roles Permitidos | Descripción |
 | :--- | :--- | :--- | :--- |
 | `GET` | `/api/v1/colegios` | `ADMIN`, `INSTRUCTOR` | Listado de colegios articulados y estado de convenio |
 | `POST` | `/api/v1/colegios` | `ADMIN` | Registra una nueva institución de educación media |
 | `GET` | `/api/v1/colegios/:id/estudiantes` | `ADMIN`, `INSTRUCTOR`, `COORDINADOR` | Estudiantes vinculados al colegio filtrados por grado (10° / 11°) |
-| `POST` | `/api/v1/colegios/:id/asignar-instructor` | `ADMIN` | Asigna un instructor SENA a un colegio y ficha específica |
+| `POST` | `/api/v1/colegios/:id/asignar-instructor` | `ADMIN` | Asigna un instructor Instituto a un colegio y ficha específica |
 | `GET` | `/api/v1/colegios/:id/estadisticas` | `ADMIN`, `INSTRUCTOR`, `COORDINADOR` | Resumen de aprendices matriculados vs en etapa productiva |
 
 ### 3.3 Módulo 3: Seguimiento y Evaluación de Competencias (`/api/v1/competencias`, `/api/v1/evaluacion`)
 
 | Método | Endpoint | Roles Permitidos | Descripción | Payload / Parámetros |
 | :--- | :--- | :--- | :--- | :--- |
-| `GET` | `/api/v1/competencias` | Autenticado | Catálogo de competencias del programa de formación SENA | Query: `?programa=ADSO` |
+| `GET` | `/api/v1/competencias` | Autenticado | Catálogo de competencias del programa de formación Instituto | Query: `?programa=ADSO` |
 | `POST` | `/api/v1/competencias` | `ADMIN` | Crear nueva competencia según diseño curricular | `{ codigo_norma, denominacion, horas, fase }` |
 | `GET` | `/api/v1/evaluacion/estudiante/:estudianteId` | `INSTRUCTOR`, `ADMIN`, `ESTUDIANTE` | Consulta la sábana de competencias del aprendiz | Param: `estudianteId` |
 | `PUT` | `/api/v1/evaluacion/calificar-individual` | `INSTRUCTOR` | Asienta juicio evaluativo individual | `{ estudiante_id, competencia_id, juicio: "APROBADO", observaciones }` |
@@ -322,8 +322,8 @@ Se implementa una **Arquitectura Cliente-Servidor Desacoplada** de tres niveles 
 | :--- | :--- | :--- | :--- |
 | `GET` | `/api/v1/estudiantes/mi-perfil` | `ESTUDIANTE` | Consulta datos personales, colegio, ficha y competencias alcanzadas |
 | `PUT` | `/api/v1/estudiantes/mi-perfil` | `ESTUDIANTE` | Actualiza resumen profesional, habilidades blandas, teléfono y foto |
-| `POST` | `/api/v1/estudiantes/mi-perfil/hoja-de-vida` | `ESTUDIANTE` | Sube archivo PDF de Hoja de Vida / Formato SENA (Multer) |
-| `GET` | `/api/v1/estudiantes/:id/insignias-digitales` | Autenticado | Retorna micro-credenciales y competencias SENA validadas para consulta pública |
+| `POST` | `/api/v1/estudiantes/mi-perfil/hoja-de-vida` | `ESTUDIANTE` | Sube archivo PDF de Hoja de Vida / Formato Instituto (Multer) |
+| `GET` | `/api/v1/estudiantes/:id/insignias-digitales` | Autenticado | Retorna micro-credenciales y competencias Instituto validadas para consulta pública |
 
 ### 3.5 Módulo 5: Vacantes Empresariales y Postulaciones (`/api/v1/vacantes`, `/api/v1/postulaciones`)
 
@@ -349,24 +349,24 @@ Se implementa una **Arquitectura Cliente-Servidor Desacoplada** de tres niveles 
 ## 4. Wireframes Descritos en Texto (Pantallas Clave)
 
 ### 4.1 Pantalla 1: Login y Selección de Portal (Acceso Unificado)
-* **Objetivo:** Autenticar de manera segura a los cuatro perfiles del ecosistema SENA Conecta.
+* **Objetivo:** Autenticar de manera segura a los cuatro perfiles del ecosistema Instituto Estudiantil.
 * **Layout:**
-  - **Lado Izquierdo (40% desktop):** Banner ilustrativo con identidad institucional SENA, escudo, lema: *"Conectando el talento de la Educación Media Técnica con las oportunidades productivas de Colombia"*. Indicador de articulación Grados 10° y 11°.
+  - **Lado Izquierdo (40% desktop):** Banner ilustrativo con identidad institucional Instituto, escudo, lema: *"Conectando el talento de la Educación Media Técnica con las oportunidades productivas de Colombia"*. Indicador de articulación Grados 10° y 11°.
   - **Lado Derecho (60% desktop):**
-    - Logo oficial de **SENA Conecta**.
-    - Selector rápido de rol o bienvenida contextual: *"Ingresa con tu cuenta institucional SENA o empresarial"*.
+    - Logo oficial de **Instituto Estudiantil**.
+    - Selector rápido de rol o bienvenida contextual: *"Ingresa con tu cuenta institucional Instituto o empresarial"*.
     - Formulario:
-      - Campo 1: Correo electrónico (`input type="email"` con placeholder `ejemplo@misena.edu.co` / `contacto@empresa.com`).
+      - Campo 1: Correo electrónico (`input type="email"` con placeholder `ejemplo@instituto.edu.co` / `contacto@empresa.com`).
       - Campo 2: Contraseña (`input type="password"` con toggle de visualización "Mostrar/Ocultar").
       - Enlace: *"¿Olvidaste tu contraseña?"* (lleva a flujo de recuperación).
       - Botón Principal: `[ Iniciar Sesión ]` (Verde institucional `#39A900`, texto blanco, micro-animación de carga).
       - Separador: *"¿Eres una empresa nueva interesada en talento joven?"* -> Botón Secundario Outline `[ Registrar Empresa ]`.
     - Footer inferior: Términos de tratamiento de datos personales conforme a la Ley 1581 de 2012 de Colombia.
 
-### 4.2 Pantalla 2: Panel del Instructor SENA (Seguimiento de Competencias)
+### 4.2 Pantalla 2: Panel del Instructor Instituto (Seguimiento de Competencias)
 * **Objetivo:** Permitir al instructor visualizar sus colegios asignados, calificar RAPs y emitir juicios evaluativos.
 * **Layout:**
-  - **Barra Superior (TopBar):** Logo SENA Conecta, selector de año lectivo actual (2026), notificaciones, avatar del instructor con nombre y centro de formación.
+  - **Barra Superior (TopBar):** Logo Instituto Estudiantil, selector de año lectivo actual (2026), notificaciones, avatar del instructor con nombre y centro de formación.
   - **Sidebar Lateral Izquierda:**
     - Inicio / Dashboard
     - Mis Colegios y Fichas (Badge con número de fichas activas)
@@ -387,11 +387,11 @@ Se implementa una **Arquitectura Cliente-Servidor Desacoplada** de tres niveles 
     4. *Tabla de Evaluación Dinámica:*
        - Columnas: Documento | Nombres y Apellidos | Evidencias Entregadas (Link Drive/PDF) | Juicio Evaluativo (Selector: `Aprobado` [Verde], `En Proceso` [Amarillo], `No Aprobado` [Rojo]) | Observaciones (Input editable en línea) | Acción `[ Guardar ]`.
 
-### 4.3 Pantalla 3: Perfil Digital del Estudiante (Portafolio de Habilidades SENA)
+### 4.3 Pantalla 3: Perfil Digital del Estudiante (Portafolio de Habilidades Instituto)
 * **Objetivo:** Servir como carta de presentación digital homologada del aprendiz ante empresas patrocinadoras.
 * **Layout:**
   - **Cabecera del Perfil (Hero Section):**
-    - Foto de perfil con marco circular y badge oficial *"Aprendiz SENA Articulación Media Técnica"*.
+    - Foto de perfil con marco circular y badge oficial *"Aprendiz Instituto Articulación Media Técnica"*.
     - Nombres completos: `Juan Camilo Rodríguez Pérez`.
     - Grado y Colegio: `Grado 11° - Instituto Técnico Industrial Piloto`.
     - Programa: `Técnico en Programación de Software (Ficha 2894110)`.
@@ -403,7 +403,7 @@ Se implementa una **Arquitectura Cliente-Servidor Desacoplada** de tres niveles 
       - *Habilidades Técnicas:* Badges/Tags (`JavaScript`, `React`, `PostgreSQL`, `Git`, `Lógica de Programación`).
       - *Habilidades Blandas:* `Trabajo en equipo`, `Resolución de problemas`, `Puntualidad`.
     - **Columna Derecha (65%):**
-      - *Radar de Competencias SENA Adquiridas (Insignias Validadas):*
+      - *Radar de Competencias Instituto Adquiridas (Insignias Validadas):*
         - Lista de tarjetas con código de norma, nombre oficial de la competencia, fecha de aprobación y nombre del instructor que emitió el juicio.
         - Barra de progreso global del programa: `75% Completado - Apto para Etapa Productiva`.
       - *Portafolio de Proyectos Formativos:*
@@ -414,24 +414,24 @@ Se implementa una **Arquitectura Cliente-Servidor Desacoplada** de tres niveles 
 ### 4.4 Pantalla 4: Panel de la Empresa (Gestión de Vacantes y Búsqueda de Talento)
 * **Objetivo:** Permitir a los empresarios publicar ofertas de etapa práctica, revisar postulados y filtrar candidatos por competencias.
 * **Layout:**
-  - **Barra Superior:** Nombre de la empresa (`Innovatech Soluciones S.A.S.`), badge de *"Empresa Verificada SENA"*, botón rápido `[ + Nueva Vacante ]`.
+  - **Barra Superior:** Nombre de la empresa (`Innovatech Soluciones S.A.S.`), badge de *"Empresa Verificada Instituto"*, botón rápido `[ + Nueva Vacante ]`.
   - **Navegación por Pestañas:**
     - `[ Mis Vacantes Activas ]` | `[ Candidatos Postulados ]` | `[ Explorador de Talentos ]`.
   - **Contenido - Vista "Candidatos Postulados":**
-    - *Filtros Superiores:* Vacante (`Desarrollador Junior / Practicante Frontend`), Municipio (`Bogotá / Soacha`), Nivel de Aprobación SENA (`Mínimo 80%`).
+    - *Filtros Superiores:* Vacante (`Desarrollador Junior / Practicante Frontend`), Municipio (`Bogotá / Soacha`), Nivel de Aprobación Instituto (`Mínimo 80%`).
     - *Grid de Tarjetas de Candidatos (Estilo Kanban o Tarjetas):*
       - Cada tarjeta muestra: Foto del aprendiz, Nombre, Colegio de procedencia, Grado (11°), Competencias clave validadas por el instructor.
       - Mini barra de progreso: *"8 de 8 competencias técnicas aprobadas"*.
       - Selector de Estado de Contratación: `[ Postulado ] -> [ En Entrevista ] -> [ Seleccionado ] -> [ Descartado ]`.
       - Botones: `[ Ver Perfil Completo ]` | `[ Contactar por Correo/WhatsApp ]`.
   - **Modal "Crear Nueva Vacante":**
-    - Campos: Título del cargo, número de cupos, auxilio de sostenimiento económico ($ COP), modalidad, competencias SENA requeridas (con autocompletado del catálogo SENA) y fecha límite.
+    - Campos: Título del cargo, número de cupos, auxilio de sostenimiento económico ($ COP), modalidad, competencias Instituto requeridas (con autocompletado del catálogo Instituto) y fecha límite.
 
 ---
 
 ## 5. Historias de Usuario (Scrum) Priorizadas por Sprint
 
-### Sprint 1: Fundaciones, Autenticación y Articulación Colegio-SENA (Duración: 2 semanas)
+### Sprint 1: Fundaciones, Autenticación y Articulación Colegio-Instituto (Duración: 2 semanas)
 
 #### HU-01: Autenticación con Roles y Control de Acceso
 * **Como** usuario del sistema (Estudiante, Instructor, Empresa, Administrador),  
@@ -448,7 +448,7 @@ Se implementa una **Arquitectura Cliente-Servidor Desacoplada** de tres niveles 
 
 #### HU-02: Gestión y Parametrización de Colegios y Fichas Articuladas
 * **Como** administrador o coordinador del programa de articulación,  
-  **quiero** registrar instituciones educativas con sus códigos DANE y crear las fichas de caracterización SENA,  
+  **quiero** registrar instituciones educativas con sus códigos DANE y crear las fichas de caracterización Instituto,  
   **para** estructurar la base institucional de los aprendices de grados 10° y 11°.
 * **Criterios de Aceptación:**
   - **Dado** un colegio con código DANE único y datos de contacto completos,  
@@ -464,7 +464,7 @@ Se implementa una **Arquitectura Cliente-Servidor Desacoplada** de tres niveles 
 ### Sprint 2: Catálogo y Evaluación de Competencias Técnicas (Duración: 2 semanas)
 
 #### HU-03: Consulta y Asignación de Competencias por Programa
-* **Como** instructor SENA,  
+* **Como** instructor Instituto,  
   **quiero** consultar el catálogo oficial de competencias del programa de formación técnica articulada,  
   **para** planificar los resultados de aprendizaje que serán evaluados en el año lectivo.
 * **Criterios de Aceptación:**
@@ -474,7 +474,7 @@ Se implementa una **Arquitectura Cliente-Servidor Desacoplada** de tres niveles 
 * **Puntos de Historia:** 3 SP.
 
 #### HU-04: Asentamiento de Juicios Evaluativos (Individual y Masivo)
-* **Como** instructor SENA,  
+* **Como** instructor Instituto,  
   **quiero** calificar las competencias de los estudiantes asignando juicios de *"Aprobado"*, *"En Proceso"* o *"No Aprobado"* con observaciones pedagógicas,  
   **para** registrar de forma oficial el avance académico de la media técnica.
 * **Criterios de Aceptación:**
@@ -535,7 +535,7 @@ Se implementa una **Arquitectura Cliente-Servidor Desacoplada** de tres niveles 
 ### Sprint 5: Reportes, Analítica y Cierre de Articulación (Duración: 1-2 semanas)
 
 #### HU-08: Generación de Reportes de Avance y Tasa de Colocación
-* **Como** directivo del colegio o coordinador SENA,  
+* **Como** directivo del colegio o coordinador Instituto,  
   **quiero** generar reportes consolidados en PDF y Excel sobre el avance de competencias y número de estudiantes vinculados a empresas,  
   **para** rendir cuentas en las mesas de articulación interinstitucional y tomar decisiones pedagógicas.
 * **Criterios de Aceptación:**
@@ -559,6 +559,6 @@ Se implementa una **Arquitectura Cliente-Servidor Desacoplada** de tres niveles 
 | **TC-07** | Regla de Postulación | Alumno con 50% de avance | 1. Ver vacante abierta<br>2. Intentar hacer clic en botón "Postularme" | Alumno con 3 de 6 competencias aprobadas | Botón deshabilitado o modal informativo indicando requisito del 70% | **PASA** |
 | **TC-08** | Regla de Postulación Apta | Alumno con 85% de avance | 1. Ver vacante abierta<br>2. Click en "Postularme"<br>3. Confirmar en modal | Alumno con 6 de 7 competencias aprobadas | Postulación creada con estado `POSTULADO`. La empresa visualiza al candidato | **PASA** |
 | **TC-09** | Gestión de Vacantes | Empresa verificada | 1. Ir a `/vacantes/crear`<br>2. Digitar fecha límite pasada<br>3. Intentar publicar | Fecha límite < Fecha actual | Validación cliente y servidor rechaza fecha anterior a hoy | **PASA** |
-| **TC-10** | Filtro Empresa Postulados | Empresa con vacante | 1. Acceder al dashboard de vacante<br>2. Filtrar postulados por "Aprobados SENA" | Postulados con diferentes promedios | Lista ordenada mostrando insignia SENA destacada para perfiles completos | **PASA** |
+| **TC-10** | Filtro Empresa Postulados | Empresa con vacante | 1. Acceder al dashboard de vacante<br>2. Filtrar postulados por "Aprobados Instituto" | Postulados con diferentes promedios | Lista ordenada mostrando insignia Instituto destacada para perfiles completos | **PASA** |
 | **TC-11** | Reportes Excel | Datos registrados en BD | 1. Ir a `/reportes`<br>2. Seleccionar Colegio y Grado 11°<br>3. Click en "Generar Excel" | Parámetros de consulta válidos | Descarga inmediata de archivo `.xlsx` íntegro y sin celdas corruptas | **PASA** |
 | **TC-12** | Responsive Design | Cualquier dispositivo | 1. Abrir pantalla de login y panel en viewport móvil (375px)<br>2. Validar navegación | Navegador móvil o DevTools Responsive | Menú hamburguesa funcional, tablas con scroll horizontal o vista en tarjetas | **PASA** |
