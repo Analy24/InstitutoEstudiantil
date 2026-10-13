@@ -1,108 +1,397 @@
--- =============================================================================
--- INSTITUTO ESTUDIANTIL - DATOS DE PRUEBA (SEEDS) PARA MYSQL
--- Contraseña unificada para todos los usuarios de prueba: Password123!
--- Hash bcrypt (salt 10): $2b$10$wTf7JzM6k2fM5b9aJ3B.b.f8lTfVp9R9Iom0YQ7F3l3r8L5nB.uXq
--- =============================================================================
+CREATE DATABASE  IF NOT EXISTS `instituto_estudiantil` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `instituto_estudiantil`;
+-- MySQL dump 10.13  Distrib 8.0.45, for Win64 (x86_64)
+--
+-- Host: localhost    Database: instituto_estudiantil
+-- ------------------------------------------------------
+-- Server version	8.0.45
 
-USE articulapp_db;
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
--- Desactivar llaves foráneas para inserción limpia
-SET FOREIGN_KEY_CHECKS = 0;
+--
+-- Table structure for table `colegio`
+--
 
-DELETE FROM postulaciones;
-DELETE FROM vacantes;
-DELETE FROM empresas;
-DELETE FROM estudiante_competencias;
-DELETE FROM competencias;
-DELETE FROM estudiantes;
-DELETE FROM instructor_colegios;
-DELETE FROM instructores;
-DELETE FROM colegios;
-DELETE FROM usuarios;
+DROP TABLE IF EXISTS `colegio`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `colegio` (
+  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `codigo_dane` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nombre` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `direccion` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `municipio` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `departamento` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `telefono` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `rector_nombre` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `coordinador_media` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email_institucional` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `codigo_dane` (`codigo_dane`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-SET FOREIGN_KEY_CHECKS = 1;
+--
+-- Dumping data for table `colegio`
+--
 
--- -----------------------------------------------------------------------------
--- 1. USUARIOS DEL SISTEMA
--- -----------------------------------------------------------------------------
-INSERT INTO usuarios (id, email, password_hash, rol, activo, ultimo_acceso) VALUES
-('usr-admin-01', 'admin@institutoestudiantil.edu.co', '$2b$10$wTf7JzM6k2fM5b9aJ3B.b.f8lTfVp9R9Iom0YQ7F3l3r8L5nB.uXq', 'ADMIN', 1, NOW()),
-('usr-inst-01', 'instructor.perez@instituto.edu.co', '$2b$10$wTf7JzM6k2fM5b9aJ3B.b.f8lTfVp9R9Iom0YQ7F3l3r8L5nB.uXq', 'INSTRUCTOR', 1, NOW()),
-('usr-est-01', 'juan.rodriguez@colegio.edu.co', '$2b$10$wTf7JzM6k2fM5b9aJ3B.b.f8lTfVp9R9Iom0YQ7F3l3r8L5nB.uXq', 'ESTUDIANTE', 1, NOW()),
-('usr-est-02', 'maria.gomez@colegio.edu.co', '$2b$10$wTf7JzM6k2fM5b9aJ3B.b.f8lTfVp9R9Iom0YQ7F3l3r8L5nB.uXq', 'ESTUDIANTE', 1, NOW()),
-('usr-emp-01', 'talento@innovatech.com', '$2b$10$wTf7JzM6k2fM5b9aJ3B.b.f8lTfVp9R9Iom0YQ7F3l3r8L5nB.uXq', 'EMPRESA', 1, NOW());
+LOCK TABLES `colegio` WRITE;
+/*!40000 ALTER TABLE `colegio` DISABLE KEYS */;
+/*!40000 ALTER TABLE `colegio` ENABLE KEYS */;
+UNLOCK TABLES;
 
--- -----------------------------------------------------------------------------
--- 2. COLEGIOS ARTICULADOS
--- -----------------------------------------------------------------------------
-INSERT INTO colegios (id, codigo_dane, nombre, direccion, municipio, departamento, telefono, rector_nombre, coordinador_media, email_institucional) VALUES
-('col-01', '111001012345', 'Institución Educativa Técnico San José', 'Calle 45 # 13-22', 'Bogotá D.C.', 'Cundinamarca', '(601) 3456789', 'Lic. Gerardo Mendoza', 'Prof. Martha Cubillos', 'contacto@sanjose.edu.co'),
-('col-02', '111001089012', 'Colegio Industrial Piloto del Sur', 'Carrera 24 # 56-10 Sur', 'Soacha', 'Cundinamarca', '(601) 7891234', 'Dra. Elena Villamil', 'Lic. Óscar Téllez', 'rectoria@industrialpiloto.edu.co');
+--
+-- Table structure for table `competencia`
+--
 
--- -----------------------------------------------------------------------------
--- 3. INSTRUCTORES
--- -----------------------------------------------------------------------------
-INSERT INTO instructores (id, usuario_id, tipo_documento, numero_documento, nombres, apellidos, telefono, centro_formacion, especialidad) VALUES
-('inst-01', 'usr-inst-01', 'CC', '80123456', 'Carlos Alberto', 'Pérez Moreno', '3157894561', 'Centro de Electricidad, Electrónica y Telecomunicaciones (CEET)', 'Análisis y Desarrollo de Software / Redes');
+DROP TABLE IF EXISTS `competencia`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `competencia` (
+  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `codigo_norma` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `denominacion` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `programa_formacion` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `fase_proyecto` enum('Analisis','Planeacion','Ejecucion','Evaluacion') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `horas_duracion` int NOT NULL,
+  `descripcion` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `codigo_norma` (`codigo_norma`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- -----------------------------------------------------------------------------
--- 4. ASIGNACIÓN INSTRUCTOR A COLEGIO Y FICHA
--- -----------------------------------------------------------------------------
-INSERT INTO instructor_colegios (id, instructor_id, colegio_id, ficha_caracterizacion, ano_lectivo, activo) VALUES
-('ic-01', 'inst-01', 'col-01', '2712345', 2026, 1),
-('ic-02', 'inst-01', 'col-01', '2812345', 2026, 1);
+--
+-- Dumping data for table `competencia`
+--
 
--- -----------------------------------------------------------------------------
--- 5. APRENDICES (ESTUDIANTES DE MEDIA TÉCNICA)
--- -----------------------------------------------------------------------------
-INSERT INTO estudiantes (id, usuario_id, colegio_id, tipo_documento, numero_documento, nombres, apellidos, grado, ficha_sena, programa_formacion, jornada, telefono, resumen_perfil, hoja_vida_url, foto_url) VALUES
-('est-01', 'usr-est-01', 'col-01', 'TI', '1023456789', 'Juan Camilo', 'Rodríguez Pérez', 11, '2712345', 'Técnico en Programación de Software', 'Mañana', '3109876543', 'Estudiante de grado 11° con alta vocación por el desarrollo web Frontend y bases de datos relacionales. Apasionado por React, Node.js y trabajo colaborativo.', 'https://institutoestudiantil.edu.co/uploads/hv_juan_rodriguez.pdf', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'),
-('est-02', 'usr-est-02', 'col-01', 'TI', '1034567890', 'María Paula', 'Gómez Herrera', 10, '2812345', 'Técnico en Programación de Software', 'Tarde', '3123456789', 'Estudiante de grado 10° cursando primer año de articulación técnica. Énfasis en algoritmia, diagramación lógica y maquetación web accesible.', 'https://institutoestudiantil.edu.co/uploads/hv_maria_gomez.pdf', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150');
+LOCK TABLES `competencia` WRITE;
+/*!40000 ALTER TABLE `competencia` DISABLE KEYS */;
+/*!40000 ALTER TABLE `competencia` ENABLE KEYS */;
+UNLOCK TABLES;
 
--- -----------------------------------------------------------------------------
--- 6. COMPETENCIAS TÉCNICAS (CURRÍCULO)
--- -----------------------------------------------------------------------------
-INSERT INTO competencias (id, codigo_norma, denominacion, programa_formacion, fase_proyecto, horas_duracion, descripcion) VALUES
-('comp-01', '220501092', 'Especificar los requisitos necesarios para desarrollar la solución de software', 'Técnico en Programación de Software', 'Analisis', 48, 'Levantamiento de historias de usuario, requerimientos funcionales y no funcionales.'),
-('comp-02', '220501093', 'Evaluar requisitos de la solución de software de acuerdo con estándares', 'Técnico en Programación de Software', 'Analisis', 32, 'Validación y verificación de artefactos con stakeholders y usuarios.'),
-('comp-03', '220501094', 'Diseñar la solución de software de acuerdo con procedimientos y requisitos', 'Técnico en Programación de Software', 'Planeacion', 60, 'Modelado entidad-relación, diseño de arquitectura física/lógica y prototipos UX/UI.'),
-('comp-04', '220501095', 'Desarrollar la estructura de datos y componentes software de la aplicación', 'Técnico en Programación de Software', 'Ejecucion', 96, 'Codificación en lenguajes de backend y frontend con conexión a gestor MySQL/PostgreSQL.'),
-('comp-05', '220501096', 'Construir el sistema de bases de datos relacional conforme al diseño', 'Técnico en Programación de Software', 'Ejecucion', 64, 'Implementación de DDL, DML, llaves foráneas, índices y consultas optimizadas.');
+--
+-- Table structure for table `empresa`
+--
 
--- -----------------------------------------------------------------------------
--- 7. EVALUACIÓN Y SEGUIMIENTO DE COMPETENCIAS
--- -----------------------------------------------------------------------------
--- Juan Camilo (Grado 11 - 80% de competencias aprobadas, habilitado para práctica)
-INSERT INTO estudiante_competencias (id, estudiante_id, competencia_id, instructor_id, juicio_evaluativo, fecha_evaluacion, observaciones, evidencias_url) VALUES
-('ec-01', 'est-01', 'comp-01', 'inst-01', 'APROBADO', '2026-03-15', 'Excelente dominio en la redacción de casos de uso e historias de usuario.', 'https://github.com/evidencias/juan-requisitos'),
-('ec-02', 'est-01', 'comp-02', 'inst-01', 'APROBADO', '2026-04-20', 'Cumple a cabalidad con la matriz de trazabilidad y validación.', 'https://github.com/evidencias/juan-matriz'),
-('ec-03', 'est-01', 'comp-03', 'inst-01', 'APROBADO', '2026-06-10', 'Diagramas de arquitectura limpios y prototipo funcional en Figma.', 'https://figma.com/@juan/articulapp'),
-('ec-04', 'est-01', 'comp-04', 'inst-01', 'APROBADO', '2026-08-30', 'Desarrollo de API REST en Node.js con código modular y limpio.', 'https://github.com/juan/api-backend'),
-('ec-05', 'est-01', 'comp-05', 'inst-01', 'EN_PROCESO', NULL, 'En proceso de sustentación de procedimientos almacenados e índices.', NULL);
+DROP TABLE IF EXISTS `empresa`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `empresa` (
+  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `usuario_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nit` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `razon_social` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sector_economico` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `direccion` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `ciudad` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `contacto_nombre` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `contacto_cargo` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `contacto_telefono` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sitio_web` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `verificada` tinyint(1) DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `usuario_id` (`usuario_id`),
+  UNIQUE KEY `nit` (`nit`),
+  CONSTRAINT `empresa_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuario` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- María Paula (Grado 10 - En fase inicial de formación)
-INSERT INTO estudiante_competencias (id, estudiante_id, competencia_id, instructor_id, juicio_evaluativo, fecha_evaluacion, observaciones, evidencias_url) VALUES
-('ec-06', 'est-02', 'comp-01', 'inst-01', 'APROBADO', '2026-05-18', 'Participación activa y entrega de actas de requerimientos a tiempo.', 'https://github.com/evidencias/maria-req'),
-('ec-07', 'est-02', 'comp-02', 'inst-01', 'EN_PROCESO', NULL, 'Ajustando matriz de verificación según observaciones del instructor.', NULL),
-('ec-08', 'est-02', 'comp-03', 'inst-01', 'POR_EVALUAR', NULL, NULL, NULL),
-('ec-09', 'est-02', 'comp-04', 'inst-01', 'POR_EVALUAR', NULL, NULL, NULL),
-('ec-10', 'est-02', 'comp-05', 'inst-01', 'POR_EVALUAR', NULL, NULL, NULL);
+--
+-- Dumping data for table `empresa`
+--
 
--- -----------------------------------------------------------------------------
--- 8. EMPRESAS ALIADAS
--- -----------------------------------------------------------------------------
-INSERT INTO empresas (id, usuario_id, nit, razon_social, sector_economico, direccion, ciudad, contacto_nombre, contacto_cargo, contacto_telefono, sitio_web, verificada) VALUES
-('emp-01', 'usr-emp-01', '901234567-8', 'Innovatech Soluciones S.A.S.', 'Tecnología y Desarrollo de Software', 'Carrera 7 # 72-10 Oficina 504', 'Bogotá D.C.', 'Ing. Carolina Duarte', 'Directora de Gestión de Talento', '3187654321', 'https://innovatech.com.co', 1);
+LOCK TABLES `empresa` WRITE;
+/*!40000 ALTER TABLE `empresa` DISABLE KEYS */;
+/*!40000 ALTER TABLE `empresa` ENABLE KEYS */;
+UNLOCK TABLES;
 
--- -----------------------------------------------------------------------------
--- 9. VACANTES PARA ETAPA PRÁCTICA
--- -----------------------------------------------------------------------------
-INSERT INTO vacantes (id, empresa_id, titulo, descripcion, requisitos, modalidad, ubicacion, cupos_disponibles, auxilio_sostenimiento, fecha_limite, estado) VALUES
-('vac-01', 'emp-01', 'Aprendiz Desarrollador Web Junior (Etapa Práctica)', 'Buscamos aprendiz de grado 11° de articulación en Técnico de Programación de Software para apoyar el desarrollo de módulos frontend y consumo de APIs en equipo ágil.', 'Competencias aprobadas en diseño de software y codificación. Conocimientos en HTML, CSS, JavaScript y Git.', 'HIBRIDO', 'Bogotá D.C.', 2, 1423500.00, '2026-11-30', 'ABIERTA'),
-('vac-02', 'emp-01', 'Auxiliar de Bases de Datos y Soporte TI', 'Oportunidad de contrato de aprendizaje para dar soporte en administración básica de MySQL, consultas SQL y mantenimiento preventivo.', 'Competencias aprobadas en bases de datos relacionales y gestión de datos.', 'PRESENCIAL', 'Bogotá D.C.', 1, 1423500.00, '2026-12-15', 'ABIERTA');
+--
+-- Table structure for table `estudiante`
+--
 
--- -----------------------------------------------------------------------------
--- 10. POSTULACIÓN DE PRUEBA
--- -----------------------------------------------------------------------------
-INSERT INTO postulaciones (id, vacante_id, estudiante_id, fecha_postulacion, estado, retroalimentacion) VALUES
-('post-01', 'vac-01', 'est-01', NOW(), 'PRESELECCIONADO', 'El perfil de Juan Camilo cumple con el 80% de competencias aprobadas y su portafolio en GitHub fue evaluado positivamente por el líder técnico.');
+DROP TABLE IF EXISTS `estudiante`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `estudiante` (
+  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `usuario_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `colegio_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tipo_documento` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `numero_documento` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nombres` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `apellidos` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `grado` enum('10','11') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ficha_sena` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `programa_formacion` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `jornada` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `resumen_perfil` text COLLATE utf8mb4_unicode_ci,
+  `hoja_vida_url` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `foto_url` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `usuario_id` (`usuario_id`),
+  UNIQUE KEY `numero_documento` (`numero_documento`),
+  KEY `colegio_id` (`colegio_id`),
+  CONSTRAINT `estudiante_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuario` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `estudiante_ibfk_2` FOREIGN KEY (`colegio_id`) REFERENCES `colegio` (`id`) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `estudiante`
+--
+
+LOCK TABLES `estudiante` WRITE;
+/*!40000 ALTER TABLE `estudiante` DISABLE KEYS */;
+/*!40000 ALTER TABLE `estudiante` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `estudiante_competencia`
+--
+
+DROP TABLE IF EXISTS `estudiante_competencia`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `estudiante_competencia` (
+  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `estudiante_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `competencia_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `instructor_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `juicio_evaluativo` enum('POR_EVALUAR','EN_PROCESO','APROBADO','NO_APROBADO') COLLATE utf8mb4_unicode_ci DEFAULT 'POR_EVALUAR',
+  `fecha_evaluacion` date DEFAULT NULL,
+  `observaciones` text COLLATE utf8mb4_unicode_ci,
+  `evidencias_url` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_evaluacion` (`estudiante_id`,`competencia_id`),
+  KEY `competencia_id` (`competencia_id`),
+  KEY `instructor_id` (`instructor_id`),
+  CONSTRAINT `estudiante_competencia_ibfk_1` FOREIGN KEY (`estudiante_id`) REFERENCES `estudiante` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `estudiante_competencia_ibfk_2` FOREIGN KEY (`competencia_id`) REFERENCES `competencia` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `estudiante_competencia_ibfk_3` FOREIGN KEY (`instructor_id`) REFERENCES `instructor` (`id`) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `estudiante_competencia`
+--
+
+LOCK TABLES `estudiante_competencia` WRITE;
+/*!40000 ALTER TABLE `estudiante_competencia` DISABLE KEYS */;
+/*!40000 ALTER TABLE `estudiante_competencia` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `instructor`
+--
+
+DROP TABLE IF EXISTS `instructor`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `instructor` (
+  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `usuario_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tipo_documento` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `numero_documento` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nombres` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `apellidos` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `telefono` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `centro_formacion` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `especialidad` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `usuario_id` (`usuario_id`),
+  UNIQUE KEY `numero_documento` (`numero_documento`),
+  CONSTRAINT `instructor_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuario` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `instructor`
+--
+
+LOCK TABLES `instructor` WRITE;
+/*!40000 ALTER TABLE `instructor` DISABLE KEYS */;
+/*!40000 ALTER TABLE `instructor` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `instructor_colegio`
+--
+
+DROP TABLE IF EXISTS `instructor_colegio`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `instructor_colegio` (
+  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `instructor_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `colegio_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ficha_caracterizacion` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ano_lectivo` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `activo` tinyint(1) DEFAULT '1',
+  PRIMARY KEY (`id`),
+  KEY `instructor_id` (`instructor_id`),
+  KEY `colegio_id` (`colegio_id`),
+  CONSTRAINT `instructor_colegio_ibfk_1` FOREIGN KEY (`instructor_id`) REFERENCES `instructor` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `instructor_colegio_ibfk_2` FOREIGN KEY (`colegio_id`) REFERENCES `colegio` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `instructor_colegio`
+--
+
+LOCK TABLES `instructor_colegio` WRITE;
+/*!40000 ALTER TABLE `instructor_colegio` DISABLE KEYS */;
+/*!40000 ALTER TABLE `instructor_colegio` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `postulacion`
+--
+
+DROP TABLE IF EXISTS `postulacion`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `postulacion` (
+  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `vacante_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `estudiante_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `fecha_postulacion` date NOT NULL,
+  `estado` enum('POSTULADO','PRESELECCIONADO','SELECCIONADO','RECHAZADO') COLLATE utf8mb4_unicode_ci DEFAULT 'POSTULADO',
+  `retroalimentacion` text COLLATE utf8mb4_unicode_ci,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_postulacion` (`vacante_id`,`estudiante_id`),
+  KEY `estudiante_id` (`estudiante_id`),
+  CONSTRAINT `postulacion_ibfk_1` FOREIGN KEY (`vacante_id`) REFERENCES `vacante` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `postulacion_ibfk_2` FOREIGN KEY (`estudiante_id`) REFERENCES `estudiante` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `postulacion`
+--
+
+LOCK TABLES `postulacion` WRITE;
+/*!40000 ALTER TABLE `postulacion` DISABLE KEYS */;
+/*!40000 ALTER TABLE `postulacion` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `reporte`
+--
+
+DROP TABLE IF EXISTS `reporte`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `reporte` (
+  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `usuario_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tipo_reporte` enum('COMPETENCIAS_COLEGIO','CONSOLIDADO_FICHA','ESTADISTICAS_EMPLEABILIDAD') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `parametros_filtro` json DEFAULT NULL,
+  `archivo_url` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `fecha_generacion` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `usuario_id` (`usuario_id`),
+  CONSTRAINT `reporte_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuario` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `reporte`
+--
+
+LOCK TABLES `reporte` WRITE;
+/*!40000 ALTER TABLE `reporte` DISABLE KEYS */;
+/*!40000 ALTER TABLE `reporte` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `usuario`
+--
+
+DROP TABLE IF EXISTS `usuario`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `usuario` (
+  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password_hash` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `rol` enum('ADMIN','INSTRUCTOR','ESTUDIANTE','EMPRESA','COORDINADOR') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `activo` tinyint(1) DEFAULT '1',
+  `ultimo_acceso` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `usuario`
+--
+
+LOCK TABLES `usuario` WRITE;
+/*!40000 ALTER TABLE `usuario` DISABLE KEYS */;
+/*!40000 ALTER TABLE `usuario` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `vacante`
+--
+
+DROP TABLE IF EXISTS `vacante`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `vacante` (
+  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `empresa_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `titulo` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `descripcion` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `requisitos` text COLLATE utf8mb4_unicode_ci,
+  `modalidad` enum('PRESENCIAL','REMOTO','HIBRIDO') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ubicacion` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cupos_disponibles` int NOT NULL DEFAULT '1',
+  `auxilio_sostenimiento` decimal(10,2) DEFAULT NULL,
+  `fecha_limite` date DEFAULT NULL,
+  `estado` enum('ABIERTA','EN_SELECCION','CERRADA') COLLATE utf8mb4_unicode_ci DEFAULT 'ABIERTA',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `empresa_id` (`empresa_id`),
+  CONSTRAINT `vacante_ibfk_1` FOREIGN KEY (`empresa_id`) REFERENCES `empresa` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `vacante`
+--
+
+LOCK TABLES `vacante` WRITE;
+/*!40000 ALTER TABLE `vacante` DISABLE KEYS */;
+/*!40000 ALTER TABLE `vacante` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2026-09-17 11:33:35

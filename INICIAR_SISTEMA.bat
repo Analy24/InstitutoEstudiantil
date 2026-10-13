@@ -22,7 +22,13 @@ start http://localhost:5173
 
 echo.
 echo =======================================================
-echo  El sistema se ha iniciado correctamente.
-echo  Puedes cerrar esta ventana.
+echo  El sistema se ha iniciado correctamente en la red.
+echo.
+echo  Accesos disponibles:
+echo   * Local (este PC):  http://localhost:5173
+node -e "const os = require('os'); const nets = os.networkInterfaces(); for (const k in nets) for (const net of nets[k]) if (net.family==='IPv4' && !net.internal) console.log('   * ' + k + ': http://' + net.address + ':5173');"
+echo.
+echo  Para acceso publico desde cualquier celular o Internet:
+echo  Ejecute INICIAR_TUNEL_PUBLICO.bat o INICIAR_MULTIRED.bat
 echo =======================================================
 pause

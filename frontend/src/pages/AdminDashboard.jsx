@@ -5,7 +5,7 @@ import {
   MapPin, Mail, Phone, Plus, X, UserPlus, Globe, Award,
   AlertCircle, ShieldCheck, Clock, FileText, ChevronRight,
   Copy, Check, Send, Trash2, DollarSign, Calendar, Search,
-  Loader2, ExternalLink, User
+  Loader2, ExternalLink, User, BookOpen
 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -14,14 +14,19 @@ export default function AdminDashboard() {
   const [empresas, setEmpresas] = useState([]);
   const [solicitudesAlianza, setSolicitudesAlianza] = useState([]);
   const [estudiantes, setEstudiantes] = useState([]);
+  const [cursos, setCursos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [pestana, setPestana] = useState('instructores'); // 'instructores' | 'empresas' | 'estudiantes'
+  const [pestana, setPestana] = useState('instructores'); // 'instructores' | 'empresas' | 'estudiantes' | 'cursos'
 
   // Modales
   const [showModalInstructor, setShowModalInstructor] = useState(false);
   const [showModalEmpresa, setShowModalEmpresa] = useState(false);
   const [showModalEstudiante, setShowModalEstudiante] = useState(false);
+  const [showModalCurso, setShowModalCurso] = useState(false);
+  const [showModalMatricula, setShowModalMatricula] = useState(false);
   const [estudianteSeleccionado, setEstudianteSeleccionado] = useState(null);
+  const [cursoSeleccionado, setCursoSeleccionado] = useState(null);
+  const [estudiantesDisponibles, setEstudiantesDisponibles] = useState([]);
   const [empresaSeleccionada, setEmpresaSeleccionada] = useState(null);
   const [empresaAEliminar, setEmpresaAEliminar] = useState(null);
   const [notificacionModal, setNotificacionModal] = useState(null);
@@ -66,6 +71,14 @@ export default function AdminDashboard() {
     telefono: ''
   });
 
+  const [formCurso, setFormCurso] = useState({
+    nombre: '',
+    descripcion: '',
+    instructor_id: '',
+    programa_formacion: 'Programación de Software',
+    estado: 'PUBLICO'
+  });
+
   const [mensaje, setMensaje] = useState(null);
   const [guardando, setGuardando] = useState(false);
   const [eliminando, setEliminando] = useState(false);
@@ -73,18 +86,20 @@ export default function AdminDashboard() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [statsRes, instRes, empRes, solRes, estRes] = await Promise.all([
+      const [statsRes, instRes, empRes, solRes, estRes, curRes] = await Promise.all([
         api.getEstadisticas(),
         api.getInstructores(),
         api.getEmpresas(),
         api.getSolicitudesAlianza(),
-        api.getAdminEstudiantes()
+        api.getAdminEstudiantes(),
+        api.getCursosAdmin()
       ]);
       setStats(statsRes.data);
       setInstructores(instRes.data);
       setEmpresas(empRes.data);
       setSolicitudesAlianza(solRes.data || []);
       setEstudiantes(estRes.data);
+      setCursos(curRes.data);
     } catch (err) {
       console.error('Error al cargar datos de admin:', err);
     } finally {
@@ -251,6 +266,45 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleCrearCurso = async (e) => {
+    e.preventDefault();
+    setGuardando(true);
+    setMensaje(null);
+    try {
+      const res = await api.crearCurso(formCurso);
+      setMensaje({ tipo: 'success', texto: res.message });
+      setShowModalCurso(false);
+      setFormCurso({ nombre: '', descripcion: '', instructor_id: '', programa_formacion: 'Programación de Software', estado: 'PUBLICO' });
+      loadData();
+    } catch (err) {
+      setMensaje({ tipo: 'error', texto: err.message });
+    } finally {
+      setGuardando(false);
+    }
+  };
+
+  const abrirModalMatricula = async (curso) => {
+    setCursoSeleccionado(curso);
+    try {
+      const res = await api.getEstudiantesNoMatriculados(curso.id);
+      setEstudiantesDisponibles(res.data);
+      setShowModalMatricula(true);
+    } catch (err) {
+      alert('Error al cargar estudiantes: ' + err.message);
+    }
+  };
+
+  const handleMatricularEstudiante = async (estudianteId) => {
+    try {
+      await api.matricularEstudiantes(cursoSeleccionado.id, [estudianteId]);
+      alert('Estudiante matriculado exitosamente');
+      const res = await api.getEstudiantesNoMatriculados(cursoSeleccionado.id);
+      setEstudiantesDisponibles(res.data);
+    } catch (err) {
+      alert('Error: ' + err.message);
+    }
+  };
+
   const solicitudesPendientes = solicitudesAlianza.filter(s => s.estado === 'PENDIENTE');
 
   const tabStyle = (tab) => ({
@@ -366,6 +420,9 @@ export default function AdminDashboard() {
         </button>
         <button style={tabStyle('estudiantes')} onClick={() => setPestana('estudiantes')}>
           <Award size={16} />Estudiantes 10° y 11° ({estudiantes.length})
+        </button>
+        <button style={tabStyle('cursos')} onClick={() => setPestana('cursos')}>
+          <BookOpen size={16} />Cursos y Materias ({cursos.length})
         </button>
       </div>
 
@@ -1370,6 +1427,121 @@ export default function AdminDashboard() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* =================== PESTAÑA CURSOS =================== */}
+      {pestana === 'cursos' && (
+        <div className="card">
+          <div className="card-header">
+            <div>
+              <h2 style={{ fontSize: '1.25rem', color: '#00324D' }}>Cursos y Materias</h2>
+              <p style={{ fontSize: '0.8125rem', color: '#64748b' }}>
+                Administra los cursos, asigna instructores y matricula estudiantes.
+              </p>
+            </div>
+            <button className="btn btn-primary" onClick={() => setShowModalCurso(true)}>
+              <Plus size={16} /> Crear Curso
+            </button>
+          </div>
+
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>Cargando cursos...</div>
+          ) : cursos.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>No hay cursos registrados.</div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+              {cursos.map((c) => (
+                <div key={c.id} style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.25rem', backgroundColor: '#fff' }}>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#00324D', marginBottom: '0.5rem' }}>{c.nombre}</h3>
+                  <p style={{ fontSize: '0.875rem', color: '#475569', marginBottom: '0.5rem' }}>{c.descripcion}</p>
+                  <p style={{ fontSize: '0.8125rem', color: '#64748b' }}><strong>Programa:</strong> {c.programa_formacion}</p>
+                  <p style={{ fontSize: '0.8125rem', color: '#64748b' }}><strong>Instructor:</strong> {c.instructor_nombres} {c.instructor_apellidos}</p>
+                  <div style={{ marginTop: '0.5rem' }}>
+                    <span className={`badge ${c.estado === 'PUBLICO' ? 'badge-success' : 'badge-warning'}`}>{c.estado}</span>
+                  </div>
+                  <div style={{ marginTop: '1rem' }}>
+                    <button className="btn btn-outline" style={{ width: '100%' }} onClick={() => abrirModalMatricula(c)}>
+                      <Users size={16} style={{ marginRight: '6px' }}/> Matricular Estudiantes
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* =================== MODAL: CREAR CURSO =================== */}
+      {showModalCurso && (
+        <div className="modal-overlay" onClick={() => setShowModalCurso(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+            <div className="modal-header">
+              <h3>Crear Nuevo Curso</h3>
+              <button className="btn-icon" onClick={() => setShowModalCurso(false)}><X size={20} /></button>
+            </div>
+            <form onSubmit={handleCrearCurso}>
+              <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div className="form-group">
+                  <label className="form-label">Nombre del Curso *</label>
+                  <input className="form-input" required value={formCurso.nombre} onChange={(e) => setFormCurso({ ...formCurso, nombre: e.target.value })} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Descripción</label>
+                  <textarea className="form-input" value={formCurso.descripcion} onChange={(e) => setFormCurso({ ...formCurso, descripcion: e.target.value })} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Instructor Asignado *</label>
+                  <select className="form-select" required value={formCurso.instructor_id} onChange={(e) => setFormCurso({ ...formCurso, instructor_id: e.target.value })}>
+                    <option value="">Seleccione un instructor...</option>
+                    {instructores.map(i => <option key={i.id} value={i.id}>{i.nombres} {i.apellidos}</option>)}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Estado de Publicación</label>
+                  <select className="form-select" value={formCurso.estado} onChange={(e) => setFormCurso({ ...formCurso, estado: e.target.value })}>
+                    <option value="PUBLICO">Público (Visible para estudiantes)</option>
+                    <option value="OCULTO">Oculto (Borrador interno)</option>
+                  </select>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-outline" onClick={() => setShowModalCurso(false)}>Cancelar</button>
+                <button type="submit" className="btn btn-primary" disabled={guardando}>{guardando ? 'Guardando...' : 'Crear Curso'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* =================== MODAL: MATRICULAR ESTUDIANTE =================== */}
+      {showModalMatricula && cursoSeleccionado && (
+        <div className="modal-overlay" onClick={() => setShowModalMatricula(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+            <div className="modal-header">
+              <h3>Matricular en: {cursoSeleccionado.nombre}</h3>
+              <button className="btn-icon" onClick={() => setShowModalMatricula(false)}><X size={20} /></button>
+            </div>
+            <div className="modal-body">
+              {estudiantesDisponibles.length === 0 ? (
+                <p>Todos los estudiantes ya están matriculados en este curso.</p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  {estudiantesDisponibles.map(est => (
+                    <div key={est.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                      <div>
+                        <strong>{est.nombres} {est.apellidos}</strong>
+                        <p style={{ margin: 0, fontSize: '0.8125rem', color: '#64748b' }}>{est.numero_documento} - {est.programa_formacion}</p>
+                      </div>
+                      <button className="btn btn-primary btn-sm" onClick={() => handleMatricularEstudiante(est.id)}>
+                        Matricular
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

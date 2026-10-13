@@ -90,7 +90,20 @@ export default function Navbar() {
 
         {/* User profile & Logout */}
         {user && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            {user.foto_url && (
+              <img
+                src={user.foto_url}
+                alt={user.nombre}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  objectFit: 'cover',
+                  border: '2px solid #00324D'
+                }}
+              />
+            )}
             <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <span style={{ fontSize: '0.875rem', fontWeight: '700', color: '#0f172a' }}>

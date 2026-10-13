@@ -22,10 +22,19 @@ async function request(endpoint, options = {}) {
     headers
   });
 
-  const data = await response.json();
+  let data;
+  try {
+    const text = await response.text();
+    data = text ? JSON.parse(text) : {};
+  } catch (parseErr) {
+    if (!response.ok) {
+      throw new Error(`El servidor backend está respondiendo con error (${response.status}). Por favor reintenta en un momento.`);
+    }
+    throw new Error('Respuesta del servidor no válida');
+  }
 
   if (!response.ok) {
-    const error = new Error(data.message || 'Error en la petición al servidor');
+    const error = new Error(data.message || `Error en la petición al servidor (${response.status})`);
     error.status = response.status;
     error.code = data.code;
     error.data = data;
@@ -74,13 +83,30 @@ export const api = {
   getColegios: () => request('/colegios'),
   getColegioDetalle: (id) => request(`/colegios/${id}`),
 
-  // Competencias y Evaluación (Instructor)
-  getCompetencias: () => request('/competencias'),
-  getMatrizFicha: (ficha) => request(`/evaluacion/ficha/${ficha}`),
-  evaluarCompetencia: (payload) => request('/evaluacion/calificar', {
+  // Módulo Académico Instructor (Programas, Fichas, Clases, Temas y Evidencias)
+  getProgramasJerarquia: () => request('/instructor/programas-jerarquia'),
+  getClaseEstudiantes: (claseId) => request(`/instructor/clases/${claseId}/estudiantes`),
+  getEvidenciasClase: (claseId) => request(`/instructor/evidencias/${claseId}`),
+  evaluarEvidencia: (evidenciaId, payload) => request(`/instructor/evidencias/${evidenciaId}/evaluar`, {
     method: 'POST',
     body: JSON.stringify(payload)
   }),
+  crearTemaInstructor: (payload) => request('/instructor/temas', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  evaluarEstudianteCompetencia: (payload) => request('/instructor/evaluacion/calificar', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  getEstudiantesTablaInstructor: (params) => {
+    const qs = params ? '?' + new URLSearchParams(params).toString() : '';
+    return request(`/instructor/estudiantes-tabla${qs}`);
+  },
+  // [DEPRECADO] Antiguo módulo de competencias
+  // getCompetencias: () => request('/competencias'),
+  // getMatrizFicha: (ficha) => request(`/evaluacion/ficha/${ficha}`),
+  // evaluarCompetencia: (payload) => request('/evaluacion/calificar', { method: 'POST', body: JSON.stringify(payload) }),
 
   // Estudiante
   getMiPerfil: () => request('/estudiantes/mi-perfil'),
@@ -96,9 +122,15 @@ export const api = {
     method: 'POST',
     body: formData
   }),
+  uploadArchivo: (formData) => request('/upload', {
+    method: 'POST',
+    body: formData
+  }),
 
   // Vacantes y Postulaciones
   getVacantes: () => request('/vacantes'),
+  getMisVacantes: () => request('/vacantes/mis-vacantes'),
+  getPostulacionesPorVacante: (id) => request(`/vacantes/${id}/postulaciones`),
   crearVacante: (payload) => request('/vacantes', {
     method: 'POST',
     body: JSON.stringify(payload)
@@ -110,6 +142,44 @@ export const api = {
   actualizarEstadoPostulacion: (id, payload) => request(`/postulaciones/${id}/estado`, {
     method: 'PATCH',
     body: JSON.stringify(payload)
+  }),
+
+  // Cursos y Tareas (Estudiante)
+  getMisCursosEstudiante: () => request('/estudiantes/mis-cursos'),
+  getMisTareas: () => request('/estudiantes/mis-tareas'),
+  enviarTarea: (id, payload) => request(`/estudiantes/tareas/${id}/entregar`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+
+  // Cursos, Tareas y Asistencia (Instructor)
+  getMisCursosInstructor: () => request('/instructor/mis-cursos'),
+  getEstudiantesCurso: (cursoId) => request(`/instructor/cursos/${cursoId}/estudiantes`),
+  getTareasPorCurso: (cursoId) => request(`/instructor/cursos/${cursoId}/tareas`),
+  crearTarea: (payload) => request('/instructor/tareas', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  calificarEntregas: (calificaciones) => request('/instructor/tareas/calificar', {
+    method: 'POST',
+    body: JSON.stringify({ calificaciones })
+  }),
+  getListaAsistencia: (cursoId, fecha) => request(`/instructor/cursos/${cursoId}/asistencia/${fecha}`),
+  guardarAsistencia: (cursoId, fecha, estudiantes) => request(`/instructor/cursos/${cursoId}/asistencia/${fecha}`, {
+    method: 'POST',
+    body: JSON.stringify({ estudiantes })
+  }),
+
+  // Cursos (Administrador)
+  getCursosAdmin: () => request('/admin/cursos'),
+  crearCurso: (payload) => request('/admin/cursos', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  getEstudiantesNoMatriculados: (cursoId) => request(`/admin/cursos/${cursoId}/estudiantes-disponibles`),
+  matricularEstudiantes: (cursoId, estudiantes_ids) => request(`/admin/cursos/${cursoId}/matricular`, {
+    method: 'POST',
+    body: JSON.stringify({ estudiantes_ids })
   }),
 
   // Reportes

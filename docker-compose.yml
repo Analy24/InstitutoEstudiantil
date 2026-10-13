@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  articulapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: articulapp_production
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - NODE_ENV=production
+      - JWT_SECRET=instituto_estudiantil_prod_token_2026_super_secure_key
+      - JWT_EXPIRES_IN=8h
+      - FRONTEND_URL=http://localhost:5000
+    volumes:
+      - articulapp_data:/app/backend/data
+      - articulapp_uploads:/app/backend/uploads
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:5000/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  articulapp_data:
+  articulapp_uploads:

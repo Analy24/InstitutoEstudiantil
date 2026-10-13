@@ -29,6 +29,11 @@ export default function CompanyDashboard() {
   // Modal de Detalle Completo del Candidato (Hoja de Vida y Notas)
   const [candidatoModal, setCandidatoModal] = useState(null);
 
+  // Modal para ver aspirantes por vacante
+  const [modalAspirantes, setModalAspirantes] = useState(null);
+  const [aspirantesList, setAspirantesList] = useState([]);
+  const [loadingAspirantes, setLoadingAspirantes] = useState(false);
+
   const [mensaje, setMensaje] = useState(null);
   const [guardando, setGuardando] = useState(false);
 
@@ -37,7 +42,7 @@ export default function CompanyDashboard() {
     try {
       const [postRes, vacRes] = await Promise.all([
         api.getPostulacionesEmpresa(),
-        api.getVacantes()
+        api.getMisVacantes()
       ]);
       setPostulaciones(postRes.data);
       setVacantes(vacRes.data);
@@ -63,6 +68,20 @@ export default function CompanyDashboard() {
       setMensaje({ tipo: 'error', texto: 'Error al actualizar: ' + err.message });
     } finally {
       setActualizandoId(null);
+    }
+  };
+
+  const verAspirantes = async (vacante) => {
+    setModalAspirantes(vacante);
+    setLoadingAspirantes(true);
+    setAspirantesList([]);
+    try {
+      const res = await api.getPostulacionesPorVacante(vacante.id);
+      setAspirantesList(res.data);
+    } catch (err) {
+      setMensaje({ tipo: 'error', texto: 'Error al cargar aspirantes: ' + err.message });
+    } finally {
+      setLoadingAspirantes(false);
     }
   };
 
@@ -101,6 +120,7 @@ export default function CompanyDashboard() {
 
   const getEstadoBadge = (estado) => {
     switch (estado) {
+      case 'CONTRATADO': return <span className="badge badge-success" style={{ backgroundColor: '#15803d', color: '#fff' }}>🎓 Contratado (Contrato de Aprendizaje) ✓</span>;
       case 'SELECCIONADO': return <span className="badge badge-success">Seleccionado para Contratar ✓</span>;
       case 'PRESELECCIONADO': return <span className="badge badge-primary">Preseleccionado</span>;
       case 'RECHAZADO': return <span className="badge badge-danger">Descartado</span>;
@@ -123,7 +143,7 @@ export default function CompanyDashboard() {
     marginBottom: '-2px'
   });
 
-  const seleccionados = postulaciones.filter(p => p.estado === 'SELECCIONADO').length;
+  const seleccionados = postulaciones.filter(p => p.estado === 'SELECCIONADO' || p.estado === 'CONTRATADO').length;
   const preseleccionados = postulaciones.filter(p => p.estado === 'PRESELECCIONADO').length;
 
   return (
@@ -233,13 +253,13 @@ export default function CompanyDashboard() {
                   border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.25rem',
                   display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                   flexWrap: 'wrap', gap: '1rem', backgroundColor: '#fff',
-                  borderLeft: p.estado === 'SELECCIONADO' ? '5px solid #10b981' :
+                  borderLeft: (p.estado === 'SELECCIONADO' || p.estado === 'CONTRATADO') ? '5px solid #10b981' :
                               p.estado === 'PRESELECCIONADO' ? '5px solid #3b82f6' :
                               p.estado === 'RECHAZADO' ? '5px solid #ef4444' : '5px solid #f59e0b'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <img
-                      src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
+                      src={p.foto_url || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"}
                       alt={p.estudiante_nombre}
                       style={{ width: '56px', height: '56px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #d4af37' }}
                     />
@@ -295,6 +315,7 @@ export default function CompanyDashboard() {
                     >
                       <option value="POSTULADO">Postulado</option>
                       <option value="PRESELECCIONADO">Preseleccionado</option>
+                      <option value="CONTRATADO">Contratado (Contrato de Aprendizaje) ✓</option>
                       <option value="SELECCIONADO">Seleccionado ✓</option>
                       <option value="RECHAZADO">Descartado</option>
                     </select>
@@ -368,9 +389,18 @@ export default function CompanyDashboard() {
                         </div>
                       </div>
                     </div>
-                    <span className={`badge ${v.estado === 'ABIERTA' ? 'badge-success' : 'badge-warning'}`}>
-                      {v.estado}
-                    </span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: 'flex-end' }}>
+                      <span className={`badge ${v.estado === 'ABIERTA' ? 'badge-success' : 'badge-warning'}`}>
+                        {v.estado}
+                      </span>
+                      <button 
+                        onClick={() => verAspirantes(v)}
+                        className="btn btn-outline"
+                        style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+                      >
+                        <Users size={16} /> Ver Aspirantes
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -587,7 +617,7 @@ export default function CompanyDashboard() {
               alignItems: 'center'
             }}>
               <img
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
+                src={candidatoModal.foto_url || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"}
                 alt={candidatoModal.estudiante_nombre}
                 style={{ width: '72px', height: '72px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #d4af37' }}
               />
@@ -728,6 +758,49 @@ export default function CompanyDashboard() {
                   <span>Seleccionar para Contratar</span>
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Modal de Aspirantes por Vacante */}
+      {modalAspirantes && (
+        <div className="modal-backdrop">
+          <div className="modal-content" style={{ maxWidth: '800px' }}>
+            <div className="modal-header">
+              <h2>Aspirantes: {modalAspirantes.titulo}</h2>
+              <button className="btn-icon" onClick={() => setModalAspirantes(null)}><X size={20} /></button>
+            </div>
+            <div className="modal-body">
+              {loadingAspirantes ? (
+                <div style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>Cargando aspirantes...</div>
+              ) : aspirantesList.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>No hay aspirantes para esta vacante aún.</div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {aspirantesList.map((p) => (
+                    <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                      <div>
+                        <h4 style={{ margin: '0 0 4px 0', fontSize: '1.1rem', color: '#0f172a' }}>{p.estudiante_nombre}</h4>
+                        <p style={{ margin: 0, color: '#64748b', fontSize: '0.875rem' }}>
+                          Postulado el: {new Date(p.fecha_postulacion).toLocaleDateString()}
+                        </p>
+                        <div style={{ marginTop: '0.5rem' }}>{getEstadoBadge(p.estado)}</div>
+                      </div>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button className="btn btn-outline" onClick={() => {
+                          setModalAspirantes(null);
+                          setCandidatoModal(p);
+                        }}>
+                          Ver Hoja de Vida Completa
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-outline" onClick={() => setModalAspirantes(null)}>Cerrar</button>
             </div>
           </div>
         </div>

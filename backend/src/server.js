@@ -48,13 +48,25 @@ app.get('/health', (req, res) => {
 // Registro de rutas API versión 1
 app.use('/api/v1', apiRoutes);
 
-// Manejador de rutas no encontradas (404)
-app.use((req, res) => {
-  res.status(404).json({
-    status: 'error',
-    message: `Ruta no encontrada: ${req.method} ${req.originalUrl}`
-  });
+// Servir el frontend compilado (carpeta dist)
+const frontendDistPath = path.join(__dirname, '../../frontend/dist');
+app.use(express.static(frontendDistPath));
+
+// Catch-all: cualquier ruta no-API devuelve index.html (SPA routing)
+app.get('*', (req, res) => {
+  const indexPath = path.join(frontendDistPath, 'index.html');
+  const fs = require('fs');
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(404).json({
+      status: 'error',
+      message: 'Frontend no compilado. Ejecute "npm run build" en la carpeta frontend.'
+    });
+  }
 });
+
+const os = require('os');
 
 // Inicialización del servidor
 async function startServer() {
@@ -62,12 +74,25 @@ async function startServer() {
   if (isDatabaseConnected()) {
       await initializeSqliteDb();
   }
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
+    const interfaces = os.networkInterfaces();
+    const addresses = [];
+    for (const name of Object.keys(interfaces)) {
+      for (const net of interfaces[name]) {
+        if (net.family === 'IPv4' && !net.internal) {
+          addresses.push(net.address);
+        }
+      }
+    }
+
     console.log('====================================================');
-    console.log(`🚀 Estudiantil Backend escuchando en: http://localhost:${PORT}`);
-    console.log(`📊 Endpoint Healthcheck: http://localhost:${PORT}/health`);
-    console.log(`📡 Rutas API REST: http://localhost:${PORT}/api/v1/...`);
-    console.log(`💾 Base de datos: SQLite (Modo Persistencia)`);
+    console.log(`🚀 Estudiantil Backend escuchando en todas las interfaces (0.0.0.0:${PORT})`);
+    console.log(`🏠 Local:            http://localhost:${PORT}`);
+    addresses.forEach(ip => {
+      console.log(`📶 Red WiFi/LAN IP:   http://${ip}:${PORT}`);
+    });
+    console.log(`📊 Healthcheck:      http://localhost:${PORT}/health`);
+    console.log(`💾 Base de datos:    SQLite (Modo Persistencia)`);
     console.log('====================================================');
   });
 }

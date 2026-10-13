@@ -116,7 +116,8 @@ async function initializeSqliteDb() {
             juicio_evaluativo VARCHAR(20) NOT NULL,
             fecha_evaluacion DATE,
             observaciones TEXT,
-            evidencias_url VARCHAR(255)
+            evidencias_url VARCHAR(255),
+            calificacion DECIMAL(5,2)
           )
         `);
 
@@ -185,6 +186,173 @@ async function initializeSqliteDb() {
             fecha_postulacion DATETIME DEFAULT CURRENT_TIMESTAMP,
             estado VARCHAR(50) DEFAULT 'POSTULADO',
             retroalimentacion TEXT
+          )
+        `);
+
+        // Cursos
+        db.run(`
+          CREATE TABLE IF NOT EXISTS cursos (
+            id VARCHAR(50) PRIMARY KEY,
+            nombre VARCHAR(150) NOT NULL,
+            materia VARCHAR(150),
+            descripcion TEXT,
+            instructor_id VARCHAR(50) NOT NULL,
+            programa_formacion VARCHAR(150),
+            grado INTEGER,
+            ficha VARCHAR(20),
+            estado VARCHAR(20) DEFAULT 'PUBLICO' 
+          )
+        `);
+
+        // Matriculas
+        db.run(`
+          CREATE TABLE IF NOT EXISTS matriculas (
+            id VARCHAR(50) PRIMARY KEY,
+            curso_id VARCHAR(50) NOT NULL,
+            estudiante_id VARCHAR(50) NOT NULL,
+            fecha_matricula DATETIME DEFAULT CURRENT_TIMESTAMP
+          )
+        `);
+
+        // Tareas
+        db.run(`
+          CREATE TABLE IF NOT EXISTS tareas (
+            id VARCHAR(50) PRIMARY KEY,
+            curso_id VARCHAR(50) NOT NULL,
+            titulo VARCHAR(150) NOT NULL,
+            descripcion TEXT,
+            fecha_limite DATETIME,
+            fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP
+          )
+        `);
+
+        // Entregas Tareas
+        db.run(`
+          CREATE TABLE IF NOT EXISTS entregas_tareas (
+            id VARCHAR(50) PRIMARY KEY,
+            tarea_id VARCHAR(50) NOT NULL,
+            estudiante_id VARCHAR(50) NOT NULL,
+            archivo_url VARCHAR(255),
+            fecha_entrega DATETIME DEFAULT CURRENT_TIMESTAMP,
+            calificacion DECIMAL(5,2),
+            observaciones TEXT
+          )
+        `);
+
+        // Asistencias
+        db.run(`
+          CREATE TABLE IF NOT EXISTS asistencias (
+            id VARCHAR(50) PRIMARY KEY,
+            curso_id VARCHAR(50) NOT NULL,
+            fecha DATE NOT NULL
+          )
+        `);
+
+        // Estudiante Asistencias
+        db.run(`
+          CREATE TABLE IF NOT EXISTS estudiante_asistencias (
+            id VARCHAR(50) PRIMARY KEY,
+            asistencia_id VARCHAR(50) NOT NULL,
+            estudiante_id VARCHAR(50) NOT NULL,
+            presente BOOLEAN DEFAULT 0,
+            estado VARCHAR(20) DEFAULT 'PRESENTE',
+            observaciones VARCHAR(255)
+          )
+        `);
+
+        // Programas
+        db.run(`
+          CREATE TABLE IF NOT EXISTS programas (
+            id VARCHAR(50) PRIMARY KEY,
+            codigo VARCHAR(50) UNIQUE NOT NULL,
+            nombre VARCHAR(150) NOT NULL,
+            descripcion TEXT,
+            horas_duracion INTEGER DEFAULT 880,
+            estado VARCHAR(20) DEFAULT 'ACTIVO'
+          )
+        `);
+
+        // Fichas
+        db.run(`
+          CREATE TABLE IF NOT EXISTS fichas (
+            id VARCHAR(50) PRIMARY KEY,
+            codigo VARCHAR(50) UNIQUE NOT NULL,
+            programa_id VARCHAR(50) NOT NULL,
+            grado INTEGER NOT NULL,
+            jornada VARCHAR(50) DEFAULT 'Mañana',
+            fecha_inicio DATE,
+            fecha_fin DATE,
+            estado VARCHAR(20) DEFAULT 'ACTIVA',
+            FOREIGN KEY (programa_id) REFERENCES programas(id)
+          )
+        `);
+
+        // Clases
+        db.run(`
+          CREATE TABLE IF NOT EXISTS clases (
+            id VARCHAR(50) PRIMARY KEY,
+            nombre VARCHAR(150) NOT NULL,
+            materia VARCHAR(150),
+            descripcion TEXT,
+            instructor_id VARCHAR(50) NOT NULL,
+            ficha_id VARCHAR(50) NOT NULL,
+            programa_id VARCHAR(50),
+            grado INTEGER,
+            estado VARCHAR(20) DEFAULT 'ACTIVO',
+            FOREIGN KEY (instructor_id) REFERENCES instructores(id),
+            FOREIGN KEY (ficha_id) REFERENCES fichas(id),
+            FOREIGN KEY (programa_id) REFERENCES programas(id)
+          )
+        `);
+
+        // Temas
+        db.run(`
+          CREATE TABLE IF NOT EXISTS temas (
+            id VARCHAR(50) PRIMARY KEY,
+            clase_id VARCHAR(50),
+            competencia_id VARCHAR(50),
+            titulo VARCHAR(150) NOT NULL,
+            descripcion TEXT,
+            contenido_detallado TEXT,
+            archivo_adjunto_url VARCHAR(255),
+            semana INTEGER,
+            orden INTEGER DEFAULT 1,
+            estado VARCHAR(20) DEFAULT 'PUBLICADO'
+          )
+        `);
+
+        // Evidencias
+        db.run(`
+          CREATE TABLE IF NOT EXISTS evidencias (
+            id VARCHAR(50) PRIMARY KEY,
+            clase_id VARCHAR(50) NOT NULL,
+            tema_id VARCHAR(50),
+            titulo VARCHAR(150) NOT NULL,
+            descripcion TEXT,
+            tipo VARCHAR(50) DEFAULT 'TALLER',
+            fecha_limite DATETIME,
+            puntos_maximos DECIMAL(5,2) DEFAULT 5.0,
+            archivo_guia_url VARCHAR(255),
+            FOREIGN KEY (clase_id) REFERENCES clases(id)
+          )
+        `);
+
+        // Evidencia Entregas
+        db.run(`
+          CREATE TABLE IF NOT EXISTS evidencia_entregas (
+            id VARCHAR(50) PRIMARY KEY,
+            evidencia_id VARCHAR(50) NOT NULL,
+            estudiante_id VARCHAR(50) NOT NULL,
+            archivo_url VARCHAR(255),
+            enlace_externo VARCHAR(255),
+            comentarios_estudiante TEXT,
+            fecha_entrega DATETIME DEFAULT CURRENT_TIMESTAMP,
+            calificacion DECIMAL(5,2),
+            comentario_instructor TEXT,
+            fecha_evaluacion DATETIME,
+            estado VARCHAR(30) DEFAULT 'ENTREGADO',
+            FOREIGN KEY (evidencia_id) REFERENCES evidencias(id),
+            FOREIGN KEY (estudiante_id) REFERENCES estudiantes(id)
           )
         `);
 
@@ -273,6 +441,34 @@ async function initializeSqliteDb() {
                 stmtPostulaciones.run(p.id, p.vacante_id, p.estudiante_id, p.estado, p.retroalimentacion);
             });
             stmtPostulaciones.finalize();
+
+            // Insertar Cursos
+            if (mockData.cursos) {
+              const stmtCur = db.prepare('INSERT INTO cursos (id, nombre, materia, descripcion, instructor_id, programa_formacion, grado, ficha, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
+              mockData.cursos.forEach(c => stmtCur.run(c.id, c.nombre, c.materia || '', c.descripcion || '', c.instructor_id, c.programa_formacion, c.grado || 11, c.ficha || '', c.estado || 'PUBLICO'));
+              stmtCur.finalize();
+            }
+
+            // Insertar Matriculas
+            if (mockData.matriculas) {
+              const stmtMat = db.prepare('INSERT INTO matriculas (id, curso_id, estudiante_id) VALUES (?, ?, ?)');
+              mockData.matriculas.forEach(m => stmtMat.run(m.id, m.curso_id, m.estudiante_id));
+              stmtMat.finalize();
+            }
+
+            // Insertar Tareas
+            if (mockData.tareas) {
+              const stmtTar = db.prepare('INSERT INTO tareas (id, curso_id, titulo, descripcion, fecha_limite, fecha_creacion) VALUES (?, ?, ?, ?, ?, ?)');
+              mockData.tareas.forEach(t => stmtTar.run(t.id, t.curso_id, t.titulo, t.descripcion, t.fecha_limite, t.fecha_creacion));
+              stmtTar.finalize();
+            }
+
+            // Insertar Entregas
+            if (mockData.entregas_tareas) {
+              const stmtEnt = db.prepare('INSERT INTO entregas_tareas (id, tarea_id, estudiante_id, archivo_url, fecha_entrega, calificacion, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?)');
+              mockData.entregas_tareas.forEach(et => stmtEnt.run(et.id, et.tarea_id, et.estudiante_id, et.archivo_url, et.fecha_entrega, et.calificacion, et.observaciones));
+              stmtEnt.finalize();
+            }
 
             console.log('[DB] Semillas insertadas correctamente.');
           }

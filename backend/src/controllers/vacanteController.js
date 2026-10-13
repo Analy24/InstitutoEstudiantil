@@ -23,8 +23,34 @@ async function getVacantes(req, res) {
   }
 }
 
+// GET /vacantes/mis-vacantes - Listar vacantes de la empresa autenticada
+async function getMisVacantes(req, res) {
+  try {
+    console.log("[DEBUG] getMisVacantes called by user:", req.user);
+    const empresaId = req.user.perfil_id;
+    if (isDatabaseConnected()) {
+      const pool = getPool();
+      const [rows] = await pool.execute(
+        `SELECT v.*, e.razon_social as empresa_nombre, e.ciudad as empresa_ciudad 
+         FROM vacantes v 
+         JOIN empresas e ON v.empresa_id = e.id 
+         WHERE v.empresa_id = ? 
+         ORDER BY v.id DESC`,
+        [empresaId]
+      );
+      return res.json({ status: 'success', data: rows });
+    } else {
+      const misVacantes = mockData.vacantes.filter(v => v.empresa_id === empresaId);
+      return res.json({ status: 'success', data: misVacantes });
+    }
+  } catch (error) {
+    return res.status(500).json({ status: 'error', message: error.message });
+  }
+}
+
 // POST /vacantes - Crear una nueva vacante (Empresa / Admin)
 async function crearVacante(req, res) {
+  console.log("[DEBUG] crearVacante called by user:", req.user);
   const { titulo, descripcion, requisitos, modalidad, ubicacion, cupos_disponibles,
           auxilio_sostenimiento, fecha_limite } = req.body;
 
@@ -276,6 +302,53 @@ async function getPostulacionesEmpresa(req, res) {
   }
 }
 
+// GET /vacantes/:id/postulaciones - Ver candidatos para una vacante específica
+async function getPostulacionesPorVacante(req, res) {
+  try {
+    const { id } = req.params;
+    const empresaId = req.user.perfil_id;
+    let postulaciones = [];
+
+    if (isDatabaseConnected()) {
+      const pool = getPool();
+      
+      // Verify vacante belongs to empresa
+      const [vacExis] = await pool.execute('SELECT id FROM vacantes WHERE id = ? AND empresa_id = ?', [id, empresaId]);
+      if (vacExis.length === 0 && req.user.rol !== 'ADMIN') {
+        return res.status(403).json({ status: 'error', message: 'No autorizado o vacante no encontrada' });
+      }
+
+      const [rows] = await pool.execute(
+        `SELECT p.*, v.titulo as vacante_titulo, 
+                e.id as estudiante_id, e.nombres as est_nombres, e.apellidos as est_apellidos, 
+                e.grado as estudiante_grado, e.programa_formacion as estudiante_programa, 
+                e.telefono as estudiante_telefono, e.resumen_perfil, e.hoja_vida_url, e.foto_url,
+                u.email as estudiante_email,
+                (SELECT COUNT(*) FROM estudiante_competencias ec WHERE ec.estudiante_id = e.id AND ec.juicio_evaluativo = 'APROBADO') as competencias_aprobadas
+         FROM postulaciones p
+         JOIN vacantes v ON p.vacante_id = v.id
+         JOIN estudiantes e ON p.estudiante_id = e.id
+         JOIN usuarios u ON e.usuario_id = u.id
+         WHERE p.vacante_id = ?
+         ORDER BY p.fecha_postulacion DESC`,
+        [id]
+      );
+      
+      postulaciones = rows.map(r => ({
+        ...r,
+        estudiante_nombre: `${r.est_nombres} ${r.est_apellidos}`,
+        estudiante_colegio: 'Instituto Estudiantil'
+      }));
+    } else {
+      postulaciones = [];
+    }
+
+    return res.json({ status: 'success', data: postulaciones });
+  } catch (error) {
+    return res.status(500).json({ status: 'error', message: error.message });
+  }
+}
+
 // PATCH /postulaciones/:id/estado - Actualizar estado del candidato
 async function actualizarEstadoPostulacion(req, res) {
   try {
@@ -311,8 +384,10 @@ async function actualizarEstadoPostulacion(req, res) {
 
 module.exports = {
   getVacantes,
+  getMisVacantes,
   crearVacante,
   postularme,
   getPostulacionesEmpresa,
+  getPostulacionesPorVacante,
   actualizarEstadoPostulacion
 };

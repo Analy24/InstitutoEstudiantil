@@ -7,6 +7,7 @@ async function getMiPerfil(req, res) {
     let estudiante = null;
     let competencias = [];
     let evaluaciones = [];
+    let postulaciones = [];
 
     if (isDatabaseConnected()) {
       const pool = getPool();
@@ -27,11 +28,34 @@ async function getMiPerfil(req, res) {
         [estudianteId]
       );
       evaluaciones = evalRows;
+
+      const [postRows] = await pool.execute(
+        `SELECT p.*, v.titulo as vacante_titulo, v.modalidad, v.ubicacion, v.auxilio_sostenimiento,
+                emp.razon_social as empresa_nombre, emp.ciudad as empresa_ciudad, emp.sector_economico
+         FROM postulaciones p
+         JOIN vacantes v ON p.vacante_id = v.id
+         JOIN empresas emp ON v.empresa_id = emp.id
+         WHERE p.estudiante_id = ?
+         ORDER BY p.fecha_postulacion DESC`,
+        [estudianteId]
+      );
+      postulaciones = postRows;
     } else {
       estudiante = mockData.estudiantes.find(e => e.id === estudianteId || e.usuario_id === req.user.id);
       competencias = mockData.competencias;
       if (estudiante) {
         evaluaciones = mockData.estudiante_competencias.filter(ec => ec.estudiante_id === estudiante.id);
+        postulaciones = (mockData.postulaciones || [])
+          .filter(p => p.estudiante_id === estudiante.id)
+          .map(p => {
+            const v = (mockData.vacantes || []).find(vac => vac.id === p.vacante_id) || {};
+            const emp = (mockData.empresas || []).find(e => e.id === v.empresa_id) || {};
+            return {
+              ...p,
+              vacante_titulo: v.titulo,
+              empresa_nombre: emp.razon_social
+            };
+          });
       }
     }
 
@@ -66,6 +90,7 @@ async function getMiPerfil(req, res) {
         competencias_aprobadas_count: totalAprobadas,
         total_competencias_count: competencias.length,
         competencias: detalleCompetencias,
+        postulaciones: postulaciones || [],
         documentos: estudiante.documentos || [
           { id: 'doc-1', nombre: 'Documento de Identidad', tipo: 'IDENTIDAD', url: '/uploads/identidad.pdf', estado: 'VERIFICADO', fecha: '2026-02-01' },
           { id: 'doc-2', nombre: 'Certificado EPS', tipo: 'EPS', url: '/uploads/eps.pdf', estado: 'VERIFICADO', fecha: '2026-02-01' },

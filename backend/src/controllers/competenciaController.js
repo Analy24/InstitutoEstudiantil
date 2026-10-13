@@ -1,3 +1,12 @@
+/**
+ * =============================================================================
+ * [MÓDULO DE MATRIZ DE COMPETENCIA ELIMINADO / DEPRECADO]
+ * Según la especificación técnica, este módulo ha sido reemplazado por la nueva
+ * arquitectura jerárquica de Programa -> Ficha -> Clase -> Temas -> Evidencias
+ * implementada en instructorController.js.
+ * =============================================================================
+ */
+
 const { getPool, isDatabaseConnected } = require('../config/db');
 const mockData = require('../data/mockData');
 

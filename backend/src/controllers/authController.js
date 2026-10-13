@@ -172,40 +172,165 @@ async function getMe(req, res) {
   }
 }
 
-// Cuentas institucionales para Instituto Estudiantil
+// Cuentas institucionales para Instituto Estudiantil (Mínimo 4 por rol)
 function getDemoAccounts(req, res) {
   return res.json({
     status: 'success',
     data: [
+      // --- ADMINISTRADORES (4) ---
       {
         rol: 'ADMIN',
         email: 'admi@estudiantil.edu.com',
-        nombre: 'Administrador General',
-        descripcion: 'Gestión de instructores, empresas aliadas, estudiantes y admisiones'
+        nombre: 'Dra. Patricia Salamanca',
+        cargo: 'Rectora General',
+        descripcion: 'Dirección institucional, convenios y gestión directiva.'
       },
+      {
+        rol: 'ADMIN',
+        email: 'admin@estudiantil.edu.co',
+        nombre: 'Lic. Mauricio Garzón',
+        cargo: 'Coordinador Media Técnica',
+        descripcion: 'Supervisión curricular de programas técnicos y articulación escolar.'
+      },
+      {
+        rol: 'ADMIN',
+        email: 'practicas@estudiantil.edu.co',
+        nombre: 'Ing. Andrés Felipe Osorio',
+        cargo: 'Coordinador de Prácticas y Alianzas',
+        descripcion: 'Vinculación empresarial, contratos de aprendizaje y pasantías.'
+      },
+      {
+        rol: 'ADMIN',
+        email: 'admisiones@estudiantil.edu.co',
+        nombre: 'Lic. Claudia Marcela Vega',
+        cargo: 'Coordinadora de Admisiones y Bienestar',
+        descripcion: 'Admisiones, expediente de matrícula y bienestar estudiantil.'
+      },
+
+      // --- INSTRUCTORES (4) ---
       {
         rol: 'INSTRUCTOR',
         email: 'carlos.perez@estudiantil.edu.co',
         nombre: 'Prof. Carlos Alberto Pérez',
-        descripcion: 'Docente Técnico - Evalúa competencias de Grados 10° y 11°'
+        cargo: 'Instructor Técnico',
+        especialidad: 'Desarrollo Web & Frontend',
+        descripcion: 'Dicta: Programación Web (Grado 11°) y Algoritmos (Grado 10°).'
       },
+      {
+        rol: 'INSTRUCTOR',
+        email: 'laura.restrepo@estudiantil.edu.co',
+        nombre: 'Prof. Laura Sofía Restrepo',
+        cargo: 'Instructora Técnica',
+        especialidad: 'Contabilidad & Finanzas',
+        descripcion: 'Dicta: Contabilidad Financiera (Grado 11°) y Principios Contables (Grado 10°).'
+      },
+      {
+        rol: 'INSTRUCTOR',
+        email: 'ricardo.mendoza@estudiantil.edu.co',
+        nombre: 'Prof. Ricardo José Mendoza',
+        cargo: 'Instructor Técnico',
+        especialidad: 'Bases de Datos & SQL',
+        descripcion: 'Dicta: Bases de Datos Relacionales SQL (Grado 11°) e Intro a BD (Grado 10°).'
+      },
+      {
+        rol: 'INSTRUCTOR',
+        email: 'marcela.torres@estudiantil.edu.co',
+        nombre: 'Prof. Marcela Viviana Torres',
+        cargo: 'Instructora Técnica',
+        especialidad: 'Redes & Soporte TI',
+        descripcion: 'Dicta: Soporte y Hardware (Grado 10°) y Redes LAN (Grado 11°).'
+      },
+
+      // --- ESTUDIANTES (6) ---
       {
         rol: 'ESTUDIANTE',
         email: 'juan.rodriguez@estudiantil.edu.co',
-        nombre: 'Juan Camilo Rodríguez (Grado 11°)',
-        descripcion: 'Desarrollador Web Junior - 80% Aprobado (Apto para Práctica)'
+        nombre: 'Juan Camilo Rodríguez',
+        grado: 'Grado 11°',
+        programa: 'Aprendiz Desarrollador Web Junior',
+        estado: 'CONTRATADO CON EMPRESA',
+        badge: 'Contrato de Aprendizaje',
+        descripcion: 'Contratado en Innovatech Soluciones. Fases aprobadas al 100%.'
+      },
+      {
+        rol: 'ESTUDIANTE',
+        email: 'valentina.morales@estudiantil.edu.co',
+        nombre: 'Valentina Morales Duque',
+        grado: 'Grado 11°',
+        programa: 'Aprendiz Desarrollador Web Junior',
+        estado: 'LISTA PARA SALIR A PRÁCTICA',
+        badge: 'Habilitada (≥70%)',
+        descripcion: '85% aprobado. Lista para postularse a vacantes abiertas.'
+      },
+      {
+        rol: 'ESTUDIANTE',
+        email: 'santiago.castro@estudiantil.edu.co',
+        nombre: 'Santiago Castro Ruiz',
+        grado: 'Grado 11°',
+        programa: 'Auxiliar en Contaduría Pública',
+        estado: 'POSTULADO A EMPRESA',
+        badge: 'Preseleccionado',
+        descripcion: 'Postulado a Servicios Financieros & Contables S.A.'
       },
       {
         rol: 'ESTUDIANTE',
         email: 'maria.gomez@estudiantil.edu.co',
-        nombre: 'María Paula Gómez (Grado 10°)',
-        descripcion: 'Bases de Datos y Soporte TI - En etapa formativa inicial'
+        nombre: 'María Paula Gómez',
+        grado: 'Grado 10°',
+        programa: 'Auxiliar de Bases de Datos y Soporte TI',
+        estado: 'EN FORMACIÓN / POR EVALUAR',
+        badge: 'Por Evaluar',
+        descripcion: 'Grado 10° con tareas entregadas pendientes de calificar.'
       },
+      {
+        rol: 'ESTUDIANTE',
+        email: 'andres.gonzalez@estudiantil.edu.co',
+        nombre: 'Andrés Felipe González',
+        grado: 'Grado 10°',
+        programa: 'Técnico en Redes y Soporte de Infraestructura TI',
+        estado: 'FASE TERMINADA POR PROGRAMA',
+        badge: 'Fase 1 Aprobada (100%)',
+        descripcion: 'Fase de Análisis y Diagnóstico aprobada al 100%.'
+      },
+      {
+        rol: 'ESTUDIANTE',
+        email: 'camila.rodriguez@estudiantil.edu.co',
+        nombre: 'Camila Andrea Rodríguez',
+        grado: 'Grado 11°',
+        programa: 'Auxiliar de Bases de Datos y Soporte TI',
+        estado: 'POR EVALUAR / TAREAS PENDIENTES',
+        badge: 'Por Evaluar',
+        descripcion: 'Consultas SQL entregadas en revisión por el instructor.'
+      },
+
+      // --- EMPRESAS (4) ---
       {
         rol: 'EMPRESA',
         email: 'talento@innovatech.com',
         nombre: 'Innovatech Soluciones S.A.S.',
-        descripcion: 'Empresa aliada - Publica vacantes y selecciona talento técnico'
+        sector: 'Tecnología y Software',
+        descripcion: '2 vacantes publicadas (Desarrollo Web y BD) • Aprendiz contratado.'
+      },
+      {
+        rol: 'EMPRESA',
+        email: 'rrhh@bancofinanciero.com',
+        nombre: 'Servicios Financieros & Contables S.A.',
+        sector: 'Servicios Financieros y Contabilidad',
+        descripcion: '2 vacantes publicadas (Auxiliar Contable y Conciliaciones).'
+      },
+      {
+        rol: 'EMPRESA',
+        email: 'contacto@datacore.com.co',
+        nombre: 'DataCore Analytics & Cloud S.A.S.',
+        sector: 'Inteligencia de Datos & Cloud',
+        descripcion: '2 vacantes publicadas (Inteligencia de Datos y Soporte Servidores).'
+      },
+      {
+        rol: 'EMPRESA',
+        email: 'talento@logisticaltda.com',
+        nombre: 'Alianza Logística & Operaciones S.A.',
+        sector: 'Logística y Operaciones TI',
+        descripcion: '2 vacantes publicadas (Operaciones de Software y Archivo Contable).'
       }
     ]
   });
