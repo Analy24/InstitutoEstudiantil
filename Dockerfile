@@ -26,7 +26,7 @@ COPY backend/ ./
 COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
 
 # Crear directorios para persistencia de datos y uploads
-RUN mkdir -p /app/backend/uploads
+RUN mkdir -p /app/backend/uploads && chmod -R 777 /app
 
 # Exponer el puerto de producción
 EXPOSE 5000
